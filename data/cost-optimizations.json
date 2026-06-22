@@ -1,0 +1,317 @@
+{
+  "fetched_at": "2026-06-22T22:25:27.164932+00:00",
+  "source_sheet": "1zr_DLtdT667bprEM2JKHSsGWnYahWAuDfUuyH0kwqQM",
+  "source_tab": "cost optimization projects",
+  "projects": [
+    {
+      "name": "AWS Databricks optimization",
+      "section": "Usage-related optimizations",
+      "owner": "Hung Nguyen, Oleksii Suprun",
+      "status": "committed: completed",
+      "savings_2026": -306000.0,
+      "savings_period": "10 months (Mar - Dec)",
+      "included_in_2026_budget": "TRUE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "AWS PROD nominatim clusters optimization",
+      "section": "Usage-related optimizations",
+      "owner": "Anton Lykhachov",
+      "status": "committed: completed",
+      "savings_2026": -228691.0,
+      "savings_period": "12 months (Jan - Dec)",
+      "included_in_2026_budget": "TRUE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "AWS MongoDB Write cluster disk size reduction",
+      "section": "Usage-related optimizations",
+      "owner": "Oleksii Suprun",
+      "status": "committed: won't do",
+      "savings_2026": -177077.0,
+      "savings_period": "12 months (Jan - Dec)",
+      "included_in_2026_budget": "TRUE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "AWS MongoDB Core PROD Write cluster deprecation",
+      "section": "Usage-related optimizations",
+      "owner": "Kostya Borodin",
+      "status": "committed: completed",
+      "savings_2026": -350000.0,
+      "savings_period": "7 months (Jun - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "AWS Static Kibana deprecation",
+      "section": "Usage-related optimizations",
+      "owner": "Oleksii Suprun",
+      "status": "committed: in progress",
+      "savings_2026": -1246231.0,
+      "savings_period": "4 months (Sep - Dec)",
+      "included_in_2026_budget": "TRUE",
+      "offsetting_cost_increase": "? (increase in Databricks cost (or mybe other tool, we do not know which will be the replacement tool): GCI team, Release team (Polina K.), [we cannot split static kibana cost]"
+    },
+    {
+      "name": "GCP DR Nominatim optimization",
+      "section": "Usage-related optimizations",
+      "owner": "Anton Lykhachov",
+      "status": "committed: completed",
+      "savings_2026": -328500.0,
+      "savings_period": "12 months (Jan - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "GCP migration induced modernization of Core",
+      "section": "Usage-related optimizations",
+      "owner": "Hieu Phung",
+      "status": "committed: in progress",
+      "savings_2026": -117355.0,
+      "savings_period": "2 months (Nov - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "GCP shadow traffic cost offsets almost all of the 2026 cost saving"
+    },
+    {
+      "name": "AWS HRE decommissioning",
+      "section": "Usage-related optimizations",
+      "owner": "Maksym Yurchenko",
+      "status": "committed: in progress",
+      "savings_2026": -150000.0,
+      "savings_period": "4 months (Sep - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "~$1.5K (or 30%) increase in monthly UHRE AWS costs"
+    },
+    {
+      "name": "Monthly cost optimization recommendations",
+      "section": "Usage-related optimizations",
+      "owner": "Natalie Sigidina",
+      "status": "committed: won't do",
+      "savings_2026": -50000.0,
+      "savings_period": "10 months (Mar - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "AWS UMS Storage Snapshots cleanup",
+      "section": "Usage-related optimizations",
+      "owner": "Rostyslav Chernychenko",
+      "status": "committed: completed",
+      "savings_2026": -168000.0,
+      "savings_period": "8 months (May - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "AWS Storage Snapshots cleanup & retention policy",
+      "section": "Usage-related optimizations",
+      "owner": "Dmitryi Osmachko",
+      "status": "committed: in progress",
+      "savings_2026": null,
+      "savings_period": "",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "AWS S3 cleanup & retention policy (ELK-Static https://geocomply.atlassian.net/browse/IN-23675)",
+      "section": "Usage-related optimizations",
+      "owner": "Vladyslav Vasiliev",
+      "status": "committed: in progress",
+      "savings_2026": -168000.0,
+      "savings_period": "7 months (Jun - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "AWS Latam deprecation",
+      "section": "Usage-related optimizations",
+      "owner": "Kirill Polishchuk",
+      "status": "committed: in progress",
+      "savings_2026": null,
+      "savings_period": "",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "Cloudflare cost increase"
+    },
+    {
+      "name": "Maximizing AWS Savings Plan coverage",
+      "section": "Pricing-related optimizations",
+      "owner": "Andrii Melnyk",
+      "status": "committed: in progress",
+      "savings_2026": -3484645.0,
+      "savings_period": "12 months (Jan - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "Maximizing GCP CUD coverage",
+      "section": "Pricing-related optimizations",
+      "owner": "Andrii Melnyk",
+      "status": "committed: in progress",
+      "savings_2026": -452643.0,
+      "savings_period": "12 months (Jan - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "ELK ECU usage optimization",
+      "section": "Engineering Vendor Fees Cost Optimization Projects in 2026",
+      "owner": "Vladyslav Vasiliev",
+      "status": "committed: completed",
+      "savings_2026": -134510.0,
+      "savings_period": "3 months (Mar - May)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "Databricks DBU usage optimization",
+      "section": "Engineering Vendor Fees Cost Optimization Projects in 2026",
+      "owner": "Hung Nguyen, Oleksii Suprun",
+      "status": "committed: completed",
+      "savings_2026": -306000.0,
+      "savings_period": "10 months (Mar - Dec)",
+      "included_in_2026_budget": "TRUE",
+      "offsetting_cost_increase": "$0"
+    },
+    {
+      "name": "Deprecate of Engine Oobee [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Sergii Svichkar",
+      "status": "completed",
+      "savings_2026": 17870.0,
+      "savings_period": "8 months (May - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "Reduce number of STG environments [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Artem Silich",
+      "status": "in progress",
+      "savings_2026": null,
+      "savings_period": "7 months (Jun - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "EKS clusters version upgrade [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Dmitryi Osmachko",
+      "status": "in progress",
+      "savings_2026": 49000.0,
+      "savings_period": "7 months (Jun - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "Prod DataPlatform Kafka scaling down post 25/26 SB [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Anton Lykhachov",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "5 months (Mar - Jul)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "AWS PVS decommissioning [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Anton Lykhachov",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "8 months (May - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "AWS Precheck decommissioning [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Vadym Ustinov",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "8 months (May - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "AWS UBO decommissioning [ ]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Sergii Lypnytskyi",
+      "status": "not started",
+      "savings_2026": null,
+      "savings_period": "3 months (Oct - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "AWS Druid decomissioning [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Sergii Lypnytskyi",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "8 months (May - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "Datadog deprecation delay [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Artem Silich, Maksym Yurchenko",
+      "status": "on hold",
+      "savings_2026": null,
+      "savings_period": "7 months (Jun - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "MongoDB Read downscaling delay [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Kostya Borodin",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "7 months (Jun - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "AWS GeoGuard EFS fix [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Yaroslav Berehovyi",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "8 months (May - Dec)",
+      "included_in_2026_budget": "FALSE",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "AWS post MM 2026 Core downscaling [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Sergii Svichkar",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "8 months (May - Dec)",
+      "included_in_2026_budget": "",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "AWS Old UMS PROD release termination  [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Sergii Svichkar",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "",
+      "included_in_2026_budget": "",
+      "offsetting_cost_increase": ""
+    },
+    {
+      "name": "AWS Core downscaling due to a loss of client [link]",
+      "section": "Usage-related optimizations excluded from FinOps reporting (due to annual savings <$50K or fix of past cost anomalies)",
+      "owner": "Kirill Polishchuk",
+      "status": "completed",
+      "savings_2026": null,
+      "savings_period": "",
+      "included_in_2026_budget": "",
+      "offsetting_cost_increase": ""
+    }
+  ]
+}

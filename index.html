@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GCP Migration Program — Status Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            gblue:  { DEFAULT: '#1A73E8', light: '#E8F0FE', dark: '#1557B0' },
+            ggreen: { DEFAULT: '#1E8E3E', light: '#E6F4EA', dark: '#137333' },
+            gamber: { DEFAULT: '#F9AB00', light: '#FEF7E0', dark: '#E37400' },
+            gred:   { DEFAULT: '#D93025', light: '#FCE8E6', dark: '#B31412' },
+            ggrey:  { DEFAULT: '#80868B', light: '#F1F3F4', dark: '#5F6368' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    /* ── Section headings ───────────────────────────────────── */
+    section.section-anchor > h2 {
+      border-left: 3px solid #1A73E8;
+      padding-left: 10px;
+      color: #3c4043;
+    }
+
+    /* ── Workstream card narrative clamp ───────────────────── */
+    .ws-clamp {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── Back to top button ─────────────────────────────────── */
+    #back-to-top {
+      position: fixed; bottom: 24px; right: 24px; z-index: 50;
+      display: none; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #3c4043; color: #fff;
+      font-size: 16px; line-height: 1;
+      border: none; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      transition: background 0.15s, opacity 0.2s;
+    }
+    #back-to-top:hover { background: #1A73E8; }
+    #back-to-top.visible { display: flex; }
+
+    /* ── Confluence-style status badges ─────────────────────── */
+    .sb {
+      display: inline-flex; align-items: center;
+      padding: 2px 7px; border-radius: 3px;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      white-space: nowrap; line-height: 1.6;
+    }
+    .sb-not-started { background: #e8eaed; color: #5F6368; }
+    .sb-on-track    { background: #1A73E8; color: #fff; }
+    .sb-in-progress { background: #E8F0FE; color: #1557B0; }
+    .sb-at-risk     { background: #F9AB00; color: #3d2600; }
+    .sb-delayed     { background: #FCE8E6; color: #B31412; }
+    .sb-blocked     { background: #202124; color: #fff; }
+    .sb-done        { background: #1E8E3E; color: #fff; }
+    .sb-parked      { background: #e8eaed; color: #5F6368; }
+    .sb-tentative   { background: #FEF7E0; color: #E37400; border: 1px solid #F9AB00; }
+    .sb-open        { background: #FCE8E6; color: #B31412; }
+    .sb-consumed    { background: #E6F4EA; color: #137333; }
+    .sb-active      { background: #1A73E8; color: #fff; }
+    .sb-scoping     { background: #FEF7E0; color: #E37400; }
+    .sb-p1          { background: #D93025; color: #fff; }
+    .sb-p2          { background: #FCE8E6; color: #B31412; }
+
+    /* ── Layout helpers ──────────────────────────────────────── */
+    .section-anchor { scroll-margin-top: 130px; }
+    .detail-card    { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .source-tag     { font-size: 11px; color: #5F6368; font-weight: 500; }
+    .divider        { border-top: 1px solid #f3f4f6; margin: 14px 0; }
+
+    /* ── Gantt ───────────────────────────────────────────────── */
+    .gantt-rail {
+      position: relative; height: 8px;
+      background: #e8eaed; border-radius: 4px;
+      margin: 14px 0 28px;
+    }
+    .gantt-today-line {
+      position: absolute; top: -6px; bottom: -6px;
+      width: 2px; background: #1A73E8; border-radius: 2px;
+      z-index: 10;
+    }
+    .gantt-today-line::after {
+      content: 'Today';
+      position: absolute; top: -18px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px; font-weight: 700; color: #1A73E8;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .gantt-dot {
+      position: absolute; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 14px; height: 14px;
+      border-radius: 50%; border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.12);
+      z-index: 5; cursor: default;
+    }
+    .gantt-dot-label {
+      position: absolute; top: 100%; margin-top: 8px;
+      font-size: 10px; font-weight: 600;
+      transform: translateX(-50%);
+      white-space: nowrap; text-align: center;
+      line-height: 1.3;
+    }
+    .gantt-date-header {
+      display: flex; justify-content: space-between;
+      font-size: 10px; font-weight: 600; color: #80868B;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+    .gantt-row { margin-bottom: 4px; }
+    .gantt-row-label {
+      font-size: 11px; font-weight: 600; color: #5F6368;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+    .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="font-sans bg-ggrey-light text-gray-800 antialiased">
+
+<!-- ============================================================
+     STICKY HEADER
+============================================================ -->
+<header class="sticky top-0 z-50 bg-gray-900 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div>
+        <p class="text-xs text-gray-400 font-medium uppercase tracking-widest mb-0.5">GeoComply</p>
+        <h1 class="text-lg font-bold leading-tight">GCP Migration Program</h1>
+      </div>
+      <span class="sb sb-at-risk">Overall: At Risk</span>
+    </div>
+    <div class="text-right text-xs text-gray-400">
+      <p class="font-medium text-gray-200">Last updated: Jun 18, 2026 · ET</p>
+      <p>Run by Claude Code Routine · Sources: Jira, Sheets, Calendar, Drive, Gmail</p>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+     STICKY NAV
+============================================================ -->
+<nav class="sticky top-[52px] z-40 bg-white border-b border-gray-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 flex items-center gap-5 py-2.5 text-sm font-medium">
+    <a href="#highlights"    class="text-gblue whitespace-nowrap hover:text-gblue-dark transition-colors">Highlights</a>
+    <span class="text-gray-300">|</span>
+    <a href="#blockers"      class="text-gblue whitespace-nowrap hover:text-gblue-dark transition-colors">Decisions &amp; Blockers</a>
+    <span class="text-gray-300">|</span>
+    <a href="#workstreams"   class="text-gblue whitespace-nowrap hover:text-gblue-dark transition-colors">Workstreams</a>
+    <span class="text-gray-300">|</span>
+    <a href="#gantt"         class="text-gblue whitespace-nowrap hover:text-gblue-dark transition-colors">60-Day Timeline</a>
+    <span class="text-gray-300">|</span>
+    <a href="#core-engine"   class="text-gblue whitespace-nowrap hover:text-gblue-dark transition-colors">Core / Engine + MySQL</a>
+    <span class="text-gray-300">|</span>
+    <a href="#ml-databricks" class="text-gblue whitespace-nowrap hover:text-gblue-dark transition-colors">ML + Databricks</a>
+    <span class="text-gray-300">|</span>
+    <a href="#geoguard-cms"  class="text-gblue whitespace-nowrap hover:text-gblue-dark transition-colors">GeoGuard + CMS/GCI</a>
+    <span class="text-gray-300">|</span>
+    <!-- More dropdown -->
+    <div class="relative group">
+      <button class="flex items-center gap-1 text-gblue whitespace-nowrap hover:text-gblue-dark transition-colors font-medium">
+        More
+        <svg class="w-3.5 h-3.5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <div class="absolute left-0 top-full mt-1 hidden group-hover:block bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 min-w-[190px]">
+        <a href="#resilience-security" class="block px-4 py-2 text-sm text-gblue hover:bg-gray-50 whitespace-nowrap">Resilience + Security</a>
+        <a href="#financial"           class="block px-4 py-2 text-sm text-gblue hover:bg-gray-50 whitespace-nowrap">Financial Health</a>
+        <a href="#ebr"                 class="block px-4 py-2 text-sm text-gblue hover:bg-gray-50 whitespace-nowrap">EBR &amp; Upcoming</a>
+        <a href="#psf"                 class="block px-4 py-2 text-sm text-gblue hover:bg-gray-50 whitespace-nowrap">PSF / SOW</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-6 py-8 space-y-10">
+
+<!-- ============================================================
+     IMPORTANT TOPICS — HIGHLIGHT CARDS
+============================================================ -->
+<section id="highlights" class="section-anchor">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">Highlights</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+
+    <a href="#core-engine" class="bg-white rounded-xl border-2 border-yellow-400 shadow-sm p-4 hover:shadow-md transition-all cursor-pointer block">
+      <div class="flex items-start justify-between mb-2">
+        <p class="text-xs font-bold text-ggrey-dark uppercase tracking-wide leading-tight">Engine V1 GCP</p>
+        <span class="sb sb-at-risk">At Risk</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-900 mt-1">Jun 30</p>
+      <p class="text-sm font-semibold text-gamber mt-0.5">12 days remaining</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">Milestone at risk. Core Resilience (Jul 31) is gated on this.</p>
+      <p class="source-tag mt-3">↗ GCP Project Timeline</p>
+    </a>
+
+    <a href="#core-engine" class="bg-white rounded-xl border-2 border-gray-800 shadow-sm p-4 hover:shadow-md transition-all cursor-pointer block">
+      <div class="flex items-start justify-between mb-2">
+        <p class="text-xs font-bold text-ggrey-dark uppercase tracking-wide leading-tight">MySQL</p>
+        <span class="sb sb-blocked">Blocked</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-900 mt-1">2 Open</p>
+      <p class="text-sm font-semibold text-gray-800 mt-0.5">Decisions for Steven Vo</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">PoC owner unconfirmed. DR topology options ready, awaiting decision.</p>
+      <p class="source-tag mt-3">↗ CPR Jun 2, 2026</p>
+    </a>
+
+    <a href="#cost-anomalies" class="bg-white rounded-xl border-2 border-red-200 shadow-sm p-4 hover:shadow-md transition-all cursor-pointer block">
+      <div class="flex items-start justify-between mb-2">
+        <p class="text-xs font-bold text-ggrey-dark uppercase tracking-wide leading-tight">Cost Anomalies</p>
+        <span class="sb sb-open">3 Open</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-900 mt-1">3 tickets</p>
+      <p class="text-sm font-semibold text-gred mt-0.5">IN-23971 · IN-23652 · IN-21938</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">EC2 2x costs since Jun 11. Spanner +200% since May 14. Vertex AI open.</p>
+      <p class="source-tag mt-3">↗ Jira: cloud_cost_anomaly</p>
+    </a>
+
+    <div onclick="location.href='#blockers'" class="bg-white rounded-xl border-2 border-yellow-400 shadow-sm p-4 hover:shadow-md transition-all cursor-pointer block">
+      <div class="flex items-start justify-between mb-2">
+        <p class="text-xs font-bold text-ggrey-dark uppercase tracking-wide leading-tight">Open Decisions</p>
+        <span class="sb sb-at-risk">Attention</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-900 mt-1">5 Items</p>
+      <p class="text-sm font-semibold text-gamber mt-0.5">Awaiting Steven Vo</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">MySQL PoC, MySQL DR, MongoDB credit, GCP spend ramp, <a href="https://geocomply.atlassian.net/browse/UPRM-1990" target="_blank" class="text-gblue hover:underline" onclick="event.stopPropagation()">UPRM-1990</a>.</p>
+      <p class="source-tag mt-3">↗ CPR Jun 2, 2026</p>
+    </div>
+
+    <a href="#financial" class="bg-white rounded-xl border-2 border-green-300 shadow-sm p-4 hover:shadow-md transition-all cursor-pointer block">
+      <div class="flex items-start justify-between mb-2">
+        <p class="text-xs font-bold text-ggrey-dark uppercase tracking-wide leading-tight">Savings Potential</p>
+        <span class="sb sb-at-risk">Action Req.</span>
+      </div>
+      <p id="hl-savings-amount" class="text-2xl font-bold text-ggreen mt-1">~$1.06M</p>
+      <p id="hl-savings-sub" class="text-sm font-semibold text-ggreen-dark mt-0.5">2026 projected savings</p>
+      <p id="hl-savings-note" class="text-xs text-gray-500 mt-2 leading-snug">Loading from Cloud Infra Budget 2026…</p>
+      <p class="source-tag mt-3">↗ Cloud Infra Budget 2026</p>
+    </a>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     DECISIONS & BLOCKERS
+============================================================ -->
+<section id="blockers" class="section-anchor">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">Decisions &amp; Blockers</h2>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+
+    <div class="p-4 flex items-start gap-3">
+      <span class="sb sb-blocked mt-0.5 flex-shrink-0">Urgent</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-sm text-gray-900">MongoDB $500K AWS Credit</span>
+          <span class="sb sb-at-risk">Hard Deadline Aug 31</span>
+        </div>
+        <p class="text-sm text-gray-600 mt-1">Rost must deprecate MongoDB Write &amp; Read cluster before Aug 31. Credit expires — no extension. Steven Vo decision requested.</p>
+        <p class="source-tag mt-1">↗ CPR Jun 2, 2026 · Cloud Infra Budget 2026</p>
+      </div>
+    </div>
+
+    <div class="p-4 flex items-start gap-3">
+      <span class="sb sb-blocked mt-0.5 flex-shrink-0">Blocked</span>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-sm text-gray-900">MySQL PoC Owner</p>
+        <p class="text-sm text-gray-600 mt-1">Kirill identified as candidate but ownership unconfirmed. Blocking MySQL migration planning entirely until resolved.</p>
+        <p class="source-tag mt-1">↗ CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+    <div class="p-4 flex items-start gap-3">
+      <span class="sb sb-blocked mt-0.5 flex-shrink-0">Blocked</span>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-sm text-gray-900">MySQL DR Topology Decision</p>
+        <p class="text-sm text-gray-600 mt-1">Hieu and Rost have options prepared. Steven Vo decision required before topology is finalized and work can be scoped.</p>
+        <p class="source-tag mt-1">↗ CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+    <div class="p-4 flex items-start gap-3">
+      <span class="sb sb-at-risk mt-0.5 flex-shrink-0">At Risk</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-sm text-gray-900">GCP Spend Ramp (<a href="https://geocomply.atlassian.net/browse/UPRM-1987" target="_blank" class="text-gblue hover:underline">UPRM-1987</a>)</span>
+        </div>
+        <p class="text-sm text-gray-600 mt-1">$2.8M+ GCP spend required by Q4 2026 to meet 3-year commit pacing. Engineering acceleration plan alignment still in progress.</p>
+        <p class="source-tag mt-1">↗ <a href="https://geocomply.atlassian.net/browse/UPRM-1987" target="_blank" class="text-gblue hover:underline">UPRM-1987</a> · CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+    <div class="p-4 flex items-start gap-3">
+      <span class="sb sb-at-risk mt-0.5 flex-shrink-0">At Risk</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-sm text-gray-900">GCP Cost Anomaly — Spanner (IN-23652)</span>
+          <span class="sb sb-p2">P2</span>
+          <span class="text-xs text-ggrey-dark">Truc Giang</span>
+        </div>
+        <p class="text-sm text-gray-600 mt-1">Cloud Spanner daily costs on gc-v2-workloads0prod up 200–300% since May 14. Investigation active; remediation plan pending.</p>
+        <p class="source-tag mt-1">↗ IN-23652 · Jira: cloud_cost_anomaly</p>
+      </div>
+    </div>
+
+    <div class="p-4 flex items-start gap-3">
+      <span class="sb sb-in-progress mt-0.5 flex-shrink-0">Monitoring</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-sm text-gray-900">AWS EC2 Engine Anomaly (IN-23971)</span>
+          <span class="sb sb-p2">P2</span>
+          <span class="text-xs text-ggrey-dark">Dmitryi Osmachko</span>
+        </div>
+        <p class="text-sm text-gray-600 mt-1">AWS OrgV2 engine EC2 incurring 2x usual compute costs since Jun 11. Suspected FiFa scaling event. No GCP migration blocker at this time.</p>
+        <p class="source-tag mt-1">↗ IN-23971 · Jira: cloud_cost_anomaly</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     WORKSTREAM OVERVIEW TABLE
+============================================================ -->
+<section id="workstreams" class="section-anchor">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">Workstream Overview</h2>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-xs font-semibold text-ggrey-dark uppercase tracking-wide bg-gray-50 border-b border-gray-200">
+          <th class="px-5 py-3">Workstream</th>
+          <th class="px-5 py-3">Status</th>
+          <th class="px-5 py-3">Next Milestone</th>
+          <th class="px-5 py-3">Owner / Team</th>
+          <th class="px-5 py-3">Source</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr class="hover:bg-gray-50">
+          <td class="px-5 py-3 font-semibold text-gray-800"><a href="#core-engine" class="text-gblue hover:underline">Core / Engine</a></td>
+          <td class="px-5 py-3"><span class="sb sb-at-risk">At Risk</span></td>
+          <td class="px-5 py-3 text-gray-600">Engine V1 GCP — <strong>Jun 30</strong></td>
+          <td class="px-5 py-3 text-gray-500">Engineering</td>
+          <td class="px-5 py-3 source-tag">↗ GCP Project Timeline</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="px-5 py-3 font-semibold text-gray-800"><a href="#core-engine" class="text-gblue hover:underline">MySQL</a></td>
+          <td class="px-5 py-3"><span class="sb sb-blocked">Blocked</span></td>
+          <td class="px-5 py-3 text-gray-600">PoC + DR decisions pending</td>
+          <td class="px-5 py-3 text-gray-500">Kirill / Hieu / Rost</td>
+          <td class="px-5 py-3 source-tag">↗ MySQL Workbook · CPR Jun 2</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="px-5 py-3 font-semibold text-gray-800"><a href="#ml-databricks" class="text-gblue hover:underline">ML Migration</a></td>
+          <td class="px-5 py-3"><span class="sb sb-in-progress">In Progress</span></td>
+          <td class="px-5 py-3 text-gray-600">ML Models GCP — <strong>Aug 31 (est.)</strong></td>
+          <td class="px-5 py-3 text-gray-500">ML Team</td>
+          <td class="px-5 py-3 source-tag">↗ GCP Project Timeline</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="px-5 py-3 font-semibold text-gray-800"><a href="#ml-databricks" class="text-gblue hover:underline">Databricks</a></td>
+          <td class="px-5 py-3"><span class="sb sb-parked">Parked</span></td>
+          <td class="px-5 py-3 text-gray-600">Jan 2027</td>
+          <td class="px-5 py-3 text-gray-500">—</td>
+          <td class="px-5 py-3 source-tag">↗ Cloud Infra Budget 2026</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="px-5 py-3 font-semibold text-gray-800"><a href="#geoguard-cms" class="text-gblue hover:underline">GeoGuard</a></td>
+          <td class="px-5 py-3"><span class="sb sb-in-progress">In Progress</span></td>
+          <td class="px-5 py-3 text-gray-600">Phase 2 — <strong>Aug 31 (est.)</strong></td>
+          <td class="px-5 py-3 text-gray-500">Zencore</td>
+          <td class="px-5 py-3 source-tag">↗ Zencore Weekly Updates</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="px-5 py-3 font-semibold text-gray-800"><a href="#geoguard-cms" class="text-gblue hover:underline">CMS / GCI</a></td>
+          <td class="px-5 py-3"><span class="sb sb-at-risk">At Risk</span></td>
+          <td class="px-5 py-3 text-gray-600">MongoDB credit — <strong>Aug 31 hard</strong></td>
+          <td class="px-5 py-3 text-gray-500">Rost</td>
+          <td class="px-5 py-3 source-tag">↗ CPR Jun 2, 2026</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="px-5 py-3 font-semibold text-gray-800"><a href="#resilience-security" class="text-gblue hover:underline">Core Resilience</a></td>
+          <td class="px-5 py-3"><span class="sb sb-at-risk">At Risk</span></td>
+          <td class="px-5 py-3 text-gray-600">Jul 31 (gated on Engine V1 GCP)</td>
+          <td class="px-5 py-3 text-gray-500">Engineering</td>
+          <td class="px-5 py-3 source-tag">↗ GCP Project Timeline</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="px-5 py-3 font-semibold text-gray-800"><a href="#resilience-security" class="text-gblue hover:underline">Security / NGFW</a></td>
+          <td class="px-5 py-3"><span class="sb sb-in-progress">In Progress</span></td>
+          <td class="px-5 py-3 text-gray-600">SOW 3 scoping (~$100–110K)</td>
+          <td class="px-5 py-3 text-gray-500">Zencore / Andrii</td>
+          <td class="px-5 py-3 source-tag">↗ Cloud Infra Budget 2026</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================
+     60-DAY TIMELINE — JIRA STYLE
+     Col width: 24px | 60 days Jun 19–Aug 17 | Today = dynamic (JS)
+     Start: Jun 19, 2026 = col 0
+============================================================ -->
+<section id="gantt" class="section-anchor">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">60-Day Timeline — Jun 19 → Aug 17</h2>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div style="display:flex; min-width:0; overflow:hidden;">
+
+      <!-- ── LEFT SIDEBAR ─────────────────────────────────── -->
+      <div style="width:220px; flex-shrink:0; border-right:1px solid #dfe1e6; background:#fff;">
+
+        <!-- header spacer (matches 60px date header) -->
+        <div style="height:60px; border-bottom:1px solid #dfe1e6; background:#fafafa; display:flex; align-items:flex-end; padding:0 14px 10px;">
+          <span style="font-size:10px; font-weight:700; color:#9AA0A6; text-transform:uppercase; letter-spacing:0.06em;">Work</span>
+        </div>
+
+        <!-- section: Workstreams -->
+        <div style="height:32px; background:#f8f9fa; border-bottom:1px solid #eee; display:flex; align-items:center; padding:0 10px 0 12px; cursor:pointer; user-select:none; gap:6px;" onclick="toggleGanttSection('ws')">
+          <svg class="gs-ic-ws" width="12" height="12" viewBox="0 0 12 12" style="transition:transform 0.2s;flex-shrink:0;" fill="none" stroke="#9AA0A6" stroke-width="2" stroke-linecap="round"><polyline points="2,4 6,8 10,4"/></svg>
+          <span style="font-size:10px; font-weight:700; color:#9AA0A6; text-transform:uppercase; letter-spacing:0.06em;">Workstreams</span>
+        </div>
+        <div id="gs-sb-ws">
+          <!-- sub: Internal -->
+          <div style="height:24px; background:#f0f2f5; border-bottom:1px solid #e8eaed; display:flex; align-items:center; padding:0 14px;">
+            <span style="font-size:9px; font-weight:700; color:#BDC1C6; text-transform:uppercase; letter-spacing:0.08em;">Core Migration - Engine V1</span>
+          </div>
+          <!-- IA-1644 VM Lift -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #F9AB00; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#core-engine'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#F9AB00" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">IA-1644 · VM Lift</span>
+          </div>
+          <!-- EAGMIG-48 GKE Gate -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #D93025; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#core-engine'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#D93025" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">EAGMIG-48 · GKE Gate</span>
+          </div>
+          <!-- EAGMIG-2 Full GCP Stack -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #F4A261; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#core-engine'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#F4A261" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">EAGMIG-2 · Full GCP Stack</span>
+          </div>
+          <!-- sub: SOW 1 -->
+          <div style="height:24px; background:#f0f2f5; border-bottom:1px solid #e8eaed; display:flex; align-items:center; padding:0 14px;">
+            <span style="font-size:9px; font-weight:700; color:#BDC1C6; text-transform:uppercase; letter-spacing:0.08em;">SOW 1</span>
+          </div>
+          <!-- SOW 1 - MySQL -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #9AA0A6; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#core-engine'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#9AA0A6" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">SOW 1 - MySQL</span>
+          </div>
+          <!-- SOW 1 - CMS/GCI -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #F4A261; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#geoguard-cms'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#F4A261" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">SOW 1 - CMS / GCI</span>
+          </div>
+          <!-- sub: SOW 2 -->
+          <div style="height:24px; background:#f0f2f5; border-bottom:1px solid #e8eaed; display:flex; align-items:center; padding:0 14px;">
+            <span style="font-size:9px; font-weight:700; color:#BDC1C6; text-transform:uppercase; letter-spacing:0.08em;">SOW 2</span>
+          </div>
+          <!-- SOW 2 - GeoGuard Ph2 -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #4EC9E1; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#geoguard-cms'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#4EC9E1" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">SOW 2 - GeoGuard Ph2</span>
+          </div>
+          <!-- SOW 2 - Core Resilience -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #FABBA9; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#resilience-security'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#FABBA9" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">SOW 2 - Core Resilience</span>
+          </div>
+          <!-- SOW 2 - Cloud NGFW -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #A89DE8; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#resilience-security'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#A89DE8" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">SOW 2 - Cloud NGFW</span>
+          </div>
+          <!-- SOW 2 - ML Models -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #7B67EE; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#ml-databricks'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#7B67EE" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">SOW 2 - ML Models</span>
+          </div>
+          <!-- sub: SOW 3 -->
+          <div style="height:24px; background:#f0f2f5; border-bottom:1px solid #e8eaed; display:flex; align-items:center; padding:0 14px;">
+            <span style="font-size:9px; font-weight:700; color:#BDC1C6; text-transform:uppercase; letter-spacing:0.08em;">SOW 3</span>
+          </div>
+          <!-- SOW 3 - Cloud Armor + GeoGuard MP -->
+          <div style="height:44px; border-bottom:1px solid #f3f4f6; border-left:3px solid #7B67EE; display:flex; align-items:center; padding:0 10px 0 7px; gap:7px; cursor:pointer;" onclick="location.href='#resilience-security'">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="#7B67EE" style="flex-shrink:0;"><circle cx="4" cy="4" r="4"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">SOW 3 - Cloud Armor + GeoGuard MP</span>
+          </div>
+        </div>
+
+        <!-- section: Events & Meetings -->
+        <div style="height:32px; background:#f8f9fa; border-bottom:1px solid #eee; border-top:1px solid #dfe1e6; display:flex; align-items:center; padding:0 10px 0 12px; cursor:pointer; user-select:none; gap:6px;" onclick="toggleGanttSection('ev')">
+          <svg class="gs-ic-ev" width="12" height="12" viewBox="0 0 12 12" style="transition:transform 0.2s;flex-shrink:0;" fill="none" stroke="#9AA0A6" stroke-width="2" stroke-linecap="round"><polyline points="2,4 6,8 10,4"/></svg>
+          <span style="font-size:10px; font-weight:700; color:#9AA0A6; text-transform:uppercase; letter-spacing:0.06em;">Events &amp; Meetings</span>
+        </div>
+        <div id="gs-sb-ev">
+          <!-- sub: Cross-SOW -->
+          <div style="height:16px; background:#f0f2f5; border-bottom:1px solid #e8eaed; display:flex; align-items:center; padding:0 14px;">
+            <span style="font-size:8px; font-weight:700; color:#BDC1C6; text-transform:uppercase; letter-spacing:0.08em;">Cross-SOW</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #1A73E8; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="#1A73E8" style="flex-shrink:0;"><polygon points="5,0 10,5 5,10 0,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">ZC/GC/GCP Weekly</span>
+          </div>
+          <!-- sub: SOW 1 -->
+          <div style="height:16px; background:#f0f2f5; border-bottom:1px solid #e8eaed; display:flex; align-items:center; padding:0 14px;">
+            <span style="font-size:8px; font-weight:700; color:#BDC1C6; text-transform:uppercase; letter-spacing:0.08em;">SOW 1</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #7B67EE; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="#7B67EE" style="flex-shrink:0;"><polygon points="5,0 10,5 5,10 0,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">ZC/GC Phase 1 Check-in</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #4EC9E1; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="#4EC9E1" style="flex-shrink:0;"><polygon points="5,0 10,5 5,10 0,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">GeoGuard Working Session</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #F4A261; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="#F4A261" style="flex-shrink:0;"><polygon points="5,0 10,5 5,10 0,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">Valkey + S3→GCS Cutovers</span>
+          </div>
+          <!-- sub: Core & ML Migration -->
+          <div style="height:16px; background:#f0f2f5; border-bottom:1px solid #e8eaed; display:flex; align-items:center; padding:0 14px;">
+            <span style="font-size:8px; font-weight:700; color:#BDC1C6; text-transform:uppercase; letter-spacing:0.08em;">Core &amp; ML Migration</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #F9AB00; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="#F9AB00" style="flex-shrink:0;"><polygon points="5,0 10,5 5,10 0,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">GCP Core Migration Weekly</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #FABBA9; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="#FABBA9" style="flex-shrink:0;"><polygon points="5,0 10,5 5,10 0,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">Core Resilience Sync</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #7B67EE; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="#7B67EE" style="flex-shrink:0;"><polygon points="5,0 10,5 5,10 0,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px;">ML Platform Migration</span>
+          </div>
+          <!-- sub: Milestones -->
+          <div style="height:16px; background:#f0f2f5; border-bottom:1px solid #e8eaed; display:flex; align-items:center; padding:0 14px;">
+            <span style="font-size:8px; font-weight:700; color:#BDC1C6; text-transform:uppercase; letter-spacing:0.08em;">Milestones</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #80868B; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="#80868B" style="flex-shrink:0;"><polygon points="5,0 10,5 5,10 0,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937;">Databricks MBR</span>
+          </div>
+          <div style="height:28px; border-bottom:1px solid #f3f4f6; border-left:3px solid #F9AB00; display:flex; align-items:center; padding:0 10px 0 7px; gap:6px;">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="#F9AB00" stroke-width="1.5" style="flex-shrink:0;"><polygon points="5,0.75 9.25,5 5,9.25 0.75,5"/></svg>
+            <span style="font-size:11px; font-weight:600; color:#1f2937;">EBR Target</span>
+          </div>
+        </div>
+      </div>
+      <!-- ── END SIDEBAR ───────────────────────────────────── -->
+
+      <!-- ── RIGHT CHART AREA ──────────────────────────────── -->
+      <div style="overflow-x:auto; flex:1; position:relative;">
+        <div style="width:1440px; position:relative;">
+
+          <!-- DATE HEADER (sticky) — month row and day row generated by JS -->
+          <div style="position:sticky; top:0; z-index:10; background:#fff; border-bottom:1px solid #dfe1e6;">
+            <div id="gantt-month-row" style="display:flex; height:24px; background:#fafafa; border-bottom:1px solid #eee;"></div>
+            <div id="gantt-day-row" style="display:flex; height:36px; position:relative;">
+              <!-- Today triangle — positioned by JS -->
+              <div id="gantt-today-tri" style="position:absolute;bottom:0;left:-999px;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #1A73E8;z-index:20;"></div>
+            </div>
+          </div>
+          <!-- end DATE HEADER -->
+
+          <!-- ROWS AREA -->
+          <div style="position:relative;">
+
+            <!-- Weekend shading — injected by JS -->
+            <div id="gantt-weekends" style="position:absolute;top:0;bottom:0;left:0;right:0;pointer-events:none;z-index:0;overflow:hidden;"></div>
+
+            <!-- Month boundary lines -->
+            <!-- Jun/Jul: col 11 right = 12×24 = 288px -->
+            <div style="position:absolute;top:0;bottom:0;left:288px;width:1px;background:#dfe1e6;pointer-events:none;z-index:1;"></div>
+            <!-- Jul/Aug: col 42 right = 43×24 = 1032px -->
+            <div style="position:absolute;top:0;bottom:0;left:1032px;width:1px;background:#dfe1e6;pointer-events:none;z-index:1;"></div>
+
+            <!-- TODAY LINE — positioned by JS -->
+            <div id="gantt-today-line" style="position:absolute;top:0;bottom:0;left:-999px;width:2px;background:#1A73E8;opacity:0.75;z-index:8;pointer-events:none;"></div>
+
+            <!-- ── SECTION: Workstreams ── -->
+            <div style="height:32px;background:#f8f9fa;border-bottom:1px solid #eee;display:flex;align-items:center;padding:0 8px 0 12px;cursor:pointer;user-select:none;gap:6px;" onclick="toggleGanttSection('ws')">
+              <svg class="gs-ic-ws" width="12" height="12" viewBox="0 0 12 12" style="transition:transform 0.2s;flex-shrink:0;" fill="none" stroke="#9AA0A6" stroke-width="2" stroke-linecap="round"><polyline points="2,4 6,8 10,4"/></svg>
+              <span style="font-size:10px;font-weight:700;color:#9AA0A6;text-transform:uppercase;letter-spacing:0.06em;">Workstreams</span>
+            </div>
+            <div id="gs-ch-ws">
+
+              <!-- sub-header: Internal -->
+              <div style="height:24px;background:#f0f2f5;border-bottom:1px solid #e8eaed;"></div>
+
+              <!-- Row: IA-1644 VM Lift — P0, In Progress, no deadline, full amber arrow bar -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1428px;height:28px;border-radius:100px 0 0 100px;background:#F9AB00;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;">VM Lift (IA-1644)&thinsp;<span style="font-weight:400;opacity:0.85;">· P0 · no deadline set</span></span>
+                </div>
+                <div style="position:absolute;top:8px;right:0;width:12px;height:28px;background:#F9AB00;clip-path:polygon(0 0,100% 50%,0 100%);z-index:3;"></div>
+              </div>
+
+              <!-- Row: EAGMIG-48 Engine GKE Gate — NOT STARTED, Jun 30, red/critical, col 0→11 = 288px -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:288px;height:28px;border-radius:100px;background:#D93025;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;">GKE Gate · Jun 30&thinsp;<span style="font-weight:400;opacity:0.85;">· NOT STARTED</span></span>
+                </div>
+              </div>
+
+              <!-- Row: EAGMIG-2 Full GCP Stack — In Progress, Jul 31, col 0→42 = 1032px -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1032px;height:28px;border-radius:100px;background:#F4A261;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;">Odin + Lego + EngineV1 → Jul 31</span>
+                </div>
+              </div>
+
+              <!-- sub-header: SOW 1 -->
+              <div style="height:24px;background:#f0f2f5;border-bottom:1px solid #e8eaed;"></div>
+
+              <!-- Row: SOW 1 - MySQL — BLOCKED, dashed full width -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1440px;height:28px;border-radius:100px;background:repeating-linear-gradient(90deg,#e8eaed 0px,#e8eaed 16px,transparent 16px,transparent 24px);border:1px dashed #9AA0A6;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#5F6368;white-space:nowrap;background:#fff;padding:0 6px;border-radius:4px;">Blocked — awaiting decisions</span>
+                </div>
+              </div>
+
+              <!-- Row: SOW 1 - CMS/GCI — AT RISK orange, credit deadline Aug 31 outside window -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1428px;height:28px;border-radius:100px 0 0 100px;background:#F4A261;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;">CMS/GCI Migration&thinsp;<span style="font-weight:400;opacity:0.85;">· credit deadline Aug 31</span></span>
+                </div>
+                <div style="position:absolute;top:8px;right:0;width:12px;height:28px;background:#F4A261;clip-path:polygon(0 0,100% 50%,0 100%);z-index:3;"></div>
+              </div>
+
+              <!-- sub-header: SOW 2 -->
+              <div style="height:24px;background:#f0f2f5;border-bottom:1px solid #e8eaed;"></div>
+
+              <!-- Row: SOW 2 M1 - GeoGuard Ph2 — teal, → Aug 31 est. -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1428px;height:28px;border-radius:100px 0 0 100px;background:#4EC9E1;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;">GeoGuard Ph2 → Aug 31&thinsp;<span style="font-weight:400;opacity:0.8;">(est. · GCP Timeline)</span></span>
+                </div>
+                <div style="position:absolute;top:8px;right:0;width:12px;height:28px;background:#4EC9E1;clip-path:polygon(0 0,100% 50%,0 100%);z-index:3;"></div>
+              </div>
+
+              <!-- Row: SOW 2 M2 - Core Resilience — col 0→42 = 0–1032px, target Jul 31, gated on Engine V1 -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1032px;height:28px;border-radius:100px;background:#FABBA9;border:1.5px solid #F4A261;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#7A3A25;white-space:nowrap;">Core Resilience · target Jul 31&thinsp;<span style="font-weight:400;font-style:italic;opacity:0.85;">(gated on Engine V1)</span></span>
+                </div>
+              </div>
+
+              <!-- Row: SOW 2 M3 - Cloud NGFW — lighter purple, FQDN dev deploy ongoing -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1428px;height:28px;border-radius:100px 0 0 100px;background:#A89DE8;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;">FQDN Egress Filtering&thinsp;<span style="font-weight:400;opacity:0.8;">· Dev deploy ongoing</span></span>
+                </div>
+                <div style="position:absolute;top:8px;right:0;width:12px;height:28px;background:#A89DE8;clip-path:polygon(0 0,100% 50%,0 100%);z-index:3;"></div>
+              </div>
+
+              <!-- Row: SOW 2 M4 - ML Models — purple, → Aug 31 est. -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1428px;height:28px;border-radius:100px 0 0 100px;background:#7B67EE;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;">ML Models → Aug 31&thinsp;<span style="font-weight:400;opacity:0.8;">(est. · GCP Timeline)</span></span>
+                </div>
+                <div style="position:absolute;top:8px;right:0;width:12px;height:28px;background:#7B67EE;clip-path:polygon(0 0,100% 50%,0 100%);z-index:3;"></div>
+              </div>
+
+              <!-- sub-header: SOW 3 -->
+              <div style="height:24px;background:#f0f2f5;border-bottom:1px solid #e8eaed;"></div>
+
+              <!-- Row: SOW 3 - GeoGuard MP + Cloud Armor — BLOCKED awaiting GCP approval, purple dashed -->
+              <div style="position:relative;height:44px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:8px;left:0;width:1440px;height:28px;border-radius:100px;background:repeating-linear-gradient(90deg,#e5e0f8 0px,#e5e0f8 16px,transparent 16px,transparent 24px);border:1px dashed #7B67EE;display:flex;align-items:center;padding:0 12px;overflow:hidden;z-index:3;">
+                  <span style="font-size:11px;font-weight:700;color:#5B4DB5;white-space:nowrap;background:#f8f7ff;padding:0 6px;border-radius:4px;">Blocked — awaiting GCP approval</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ── SECTION: Events & Meetings ── -->
+            <div style="height:32px;background:#f8f9fa;border-bottom:1px solid #eee;border-top:1px solid #dfe1e6;display:flex;align-items:center;padding:0 8px 0 12px;cursor:pointer;user-select:none;gap:6px;" onclick="toggleGanttSection('ev')">
+              <svg class="gs-ic-ev" width="12" height="12" viewBox="0 0 12 12" style="transition:transform 0.2s;flex-shrink:0;" fill="none" stroke="#9AA0A6" stroke-width="2" stroke-linecap="round"><polyline points="2,4 6,8 10,4"/></svg>
+              <span style="font-size:10px;font-weight:700;color:#9AA0A6;text-transform:uppercase;letter-spacing:0.06em;">Events &amp; Meetings</span>
+            </div>
+            <div id="gs-ch-ev">
+
+              <!-- sub-header: Cross-SOW -->
+              <div style="height:16px;background:#f0f2f5;border-bottom:1px solid #e8eaed;"></div>
+
+              <!-- Row: ZC/GC/GCP Weekly (Wed) — Jun 24, Jul 8, 15, 22, 29, Aug 5, 12 -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:124px;width:12px;height:12px;background:#1A73E8;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #1A73E8;"></div>
+                <div style="position:absolute;top:50%;left:144px;transform:translateY(-50%);font-size:9px;font-weight:600;color:#1557B0;white-space:nowrap;z-index:3;">Jun 24</div>
+                <div style="position:absolute;top:50%;left:460px;width:12px;height:12px;background:#1A73E8;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #1A73E8;"></div>
+                <div style="position:absolute;top:50%;left:628px;width:12px;height:12px;background:#1A73E8;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #1A73E8;"></div>
+                <div style="position:absolute;top:50%;left:796px;width:12px;height:12px;background:#1A73E8;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #1A73E8;"></div>
+                <div style="position:absolute;top:50%;left:964px;width:12px;height:12px;background:#1A73E8;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #1A73E8;"></div>
+                <div style="position:absolute;top:50%;left:1132px;width:12px;height:12px;background:#1A73E8;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #1A73E8;"></div>
+                <div style="position:absolute;top:50%;left:1300px;width:12px;height:12px;background:#1A73E8;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #1A73E8;"></div>
+              </div>
+
+              <!-- sub-header: SOW 1 -->
+              <div style="height:16px;background:#f0f2f5;border-bottom:1px solid #e8eaed;"></div>
+
+              <!-- Row: ZC/GC Phase 1 Check-in (Tue) — Jun 30, Jul 7, 14, 21, 28, Aug 4, 11 -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:268px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:288px;transform:translateY(-50%);font-size:9px;font-weight:600;color:#5B4DB5;white-space:nowrap;z-index:3;">Jun 30</div>
+                <div style="position:absolute;top:50%;left:436px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:604px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:772px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:940px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:1108px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:1276px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+              </div>
+
+              <!-- Row: GeoGuard Working Session (Thu) — Jun 25, Jul 9, 16, 23, 30, Aug 6, 13 -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:148px;width:12px;height:12px;background:#4EC9E1;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #4EC9E1;"></div>
+                <div style="position:absolute;top:50%;left:168px;transform:translateY(-50%);font-size:9px;font-weight:600;color:#0D7F91;white-space:nowrap;z-index:3;">Jun 25</div>
+                <div style="position:absolute;top:50%;left:484px;width:12px;height:12px;background:#4EC9E1;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #4EC9E1;"></div>
+                <div style="position:absolute;top:50%;left:652px;width:12px;height:12px;background:#4EC9E1;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #4EC9E1;"></div>
+                <div style="position:absolute;top:50%;left:820px;width:12px;height:12px;background:#4EC9E1;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #4EC9E1;"></div>
+                <div style="position:absolute;top:50%;left:988px;width:12px;height:12px;background:#4EC9E1;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #4EC9E1;"></div>
+                <div style="position:absolute;top:50%;left:1156px;width:12px;height:12px;background:#4EC9E1;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #4EC9E1;"></div>
+                <div style="position:absolute;top:50%;left:1324px;width:12px;height:12px;background:#4EC9E1;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #4EC9E1;"></div>
+              </div>
+
+              <!-- Row: CMS Cutovers — Jun 22 Valkey (left=76), Jun 24 S3→GCS (left=124) -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:76px;width:12px;height:12px;background:#F4A261;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F4A261;"></div>
+                <div style="position:absolute;top:50%;left:96px;transform:translateY(-50%);font-size:9px;font-weight:600;color:#B55E20;white-space:nowrap;z-index:3;">Valkey</div>
+                <div style="position:absolute;top:50%;left:124px;width:12px;height:12px;background:#F4A261;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F4A261;"></div>
+                <div style="position:absolute;top:50%;left:144px;transform:translateY(-50%);font-size:9px;font-weight:600;color:#B55E20;white-space:nowrap;z-index:3;">S3→GCS</div>
+              </div>
+
+              <!-- sub-header: Core & ML Migration -->
+              <div style="height:16px;background:#f0f2f5;border-bottom:1px solid #e8eaed;"></div>
+
+              <!-- Row: GCP Core Migration Weekly (Mon) — Jun 22, 29, Jul 6, 13, 20, 27, Aug 3, 10, 17 -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:76px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+                <div style="position:absolute;top:50%;left:96px;transform:translateY(-50%);font-size:9px;font-weight:600;color:#B37700;white-space:nowrap;z-index:3;">Jun 22</div>
+                <div style="position:absolute;top:50%;left:244px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+                <div style="position:absolute;top:50%;left:412px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+                <div style="position:absolute;top:50%;left:580px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+                <div style="position:absolute;top:50%;left:748px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+                <div style="position:absolute;top:50%;left:916px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+                <div style="position:absolute;top:50%;left:1084px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+                <div style="position:absolute;top:50%;left:1252px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+                <div style="position:absolute;top:50%;left:1420px;width:12px;height:12px;background:#F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #F9AB00;"></div>
+              </div>
+
+              <!-- Row: Core Resilience Sync (Thu) — Jul 2, 9, 16, 23, 30, Aug 6, 13 -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:316px;width:12px;height:12px;background:#FABBA9;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #FABBA9;"></div>
+                <div style="position:absolute;top:50%;left:336px;transform:translateY(-50%);font-size:9px;font-weight:600;color:#C05A3F;white-space:nowrap;z-index:3;">Jul 2</div>
+                <div style="position:absolute;top:50%;left:484px;width:12px;height:12px;background:#FABBA9;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #FABBA9;"></div>
+                <div style="position:absolute;top:50%;left:652px;width:12px;height:12px;background:#FABBA9;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #FABBA9;"></div>
+                <div style="position:absolute;top:50%;left:820px;width:12px;height:12px;background:#FABBA9;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #FABBA9;"></div>
+                <div style="position:absolute;top:50%;left:988px;width:12px;height:12px;background:#FABBA9;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #FABBA9;"></div>
+                <div style="position:absolute;top:50%;left:1156px;width:12px;height:12px;background:#FABBA9;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #FABBA9;"></div>
+                <div style="position:absolute;top:50%;left:1324px;width:12px;height:12px;background:#FABBA9;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #FABBA9;"></div>
+              </div>
+
+              <!-- Row: ML Platform Migration (Mon) — Jun 22, 29, Jul 6, 13, 20, 27, Aug 3, 10, 17 -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:76px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:96px;transform:translateY(-50%);font-size:9px;font-weight:600;color:#5B4DB5;white-space:nowrap;z-index:3;">Jun 22</div>
+                <div style="position:absolute;top:50%;left:244px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:412px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:580px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:748px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:916px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:1084px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:1252px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+                <div style="position:absolute;top:50%;left:1420px;width:12px;height:12px;background:#7B67EE;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #7B67EE;"></div>
+              </div>
+
+              <!-- sub-header: Milestones -->
+              <div style="height:16px;background:#f0f2f5;border-bottom:1px solid #e8eaed;"></div>
+
+              <!-- Row: Databricks MBR — Jul 7, col 18, left=436 -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:436px;width:12px;height:12px;background:#80868B;transform:translateY(-50%) rotate(45deg);z-index:3;border:2px solid #fff;box-shadow:0 0 0 1px #80868B;"></div>
+                <div style="position:absolute;top:50%;left:456px;transform:translateY(-50%);font-size:10px;font-weight:600;color:#5F6368;white-space:nowrap;z-index:3;">Databricks MBR · Jul 7 · 3 PM ET</div>
+              </div>
+
+              <!-- Row: EBR Target — Jul 16, col 27, left=652, TENTATIVE dashed -->
+              <div style="position:relative;height:28px;border-bottom:1px solid #f3f4f6;">
+                <div style="position:absolute;top:50%;left:652px;width:12px;height:12px;background:#FEF7E0;border:2px dashed #F9AB00;transform:translateY(-50%) rotate(45deg);z-index:3;"></div>
+                <div style="position:absolute;top:50%;left:672px;transform:translateY(-50%);font-size:10px;font-weight:600;color:#E37400;white-space:nowrap;z-index:3;">EBR Target · Jul 16 <span style="font-size:9px;font-weight:400;color:#9AA0A6;">(tentative)</span></div>
+              </div>
+
+            </div>
+
+          </div>
+          <!-- end ROWS AREA -->
+
+          <!-- LEGEND -->
+          <div style="display:flex;flex-wrap:wrap;gap:16px;padding:12px 12px;border-top:1px solid #f0f0f0;background:#fafafa;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5F6368;"><span style="width:28px;height:10px;border-radius:100px;background:#F4A261;display:inline-block;"></span>AT RISK</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5F6368;"><span style="width:28px;height:10px;border-radius:100px;background:#7B67EE;display:inline-block;"></span>IN PROGRESS</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5F6368;"><span style="width:28px;height:10px;border-radius:100px;background:#4EC9E1;display:inline-block;"></span>IN PROGRESS (Zencore)</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5F6368;"><span style="width:28px;height:10px;border-radius:100px;background:repeating-linear-gradient(90deg,#e8eaed 0px,#e8eaed 8px,transparent 8px,transparent 12px);border:1px dashed #9AA0A6;display:inline-block;"></span>BLOCKED</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5F6368;"><span style="width:28px;height:10px;border-radius:100px;background:repeating-linear-gradient(90deg,#e5e0f8 0px,#e5e0f8 8px,transparent 8px,transparent 12px);border:1px dashed #7B67EE;display:inline-block;"></span>BLOCKED (pending contract)</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5F6368;"><span style="width:10px;height:10px;background:#1A73E8;transform:rotate(45deg);display:inline-block;"></span>Meeting</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5F6368;"><span style="width:10px;height:10px;background:#FEF7E0;border:1.5px dashed #F9AB00;transform:rotate(45deg);display:inline-block;"></span>Tentative</div>
+            <div id="gantt-today-legend" style="display:flex;align-items:center;gap:6px;font-size:11px;color:#1A73E8;"><span style="width:2px;height:14px;background:#1A73E8;display:inline-block;"></span>Today</div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ── END CHART AREA ─────────────────────────────────── -->
+
+    </div>
+  </div>
+
+  <script>
+  function toggleGanttSection(id) {
+    var sb = document.getElementById('gs-sb-' + id);
+    var ch = document.getElementById('gs-ch-' + id);
+    var open = sb.style.display !== 'none';
+    [sb, ch].forEach(function(el) { el.style.display = open ? 'none' : ''; });
+    document.querySelectorAll('.gs-ic-' + id).forEach(function(el) {
+      el.style.transform = open ? 'rotate(-90deg)' : '';
+    });
+  }
+  toggleGanttSection('ev');
+  (function () {
+    var REPORT_START = new Date(2026, 5, 19); // Jun 19, 2026 — fixed window start
+    REPORT_START.setHours(0, 0, 0, 0);
+    var DAYS = 60;
+    var COL = 24;
+    var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var todayOffset = Math.round((today - REPORT_START) / 86400000);
+
+    // ── Generate day header cells ──
+    var monthRow = document.getElementById('gantt-month-row');
+    var dayRow   = document.getElementById('gantt-day-row');
+    var mData = [], curMonth = -1;
+
+    for (var i = 0; i < DAYS; i++) {
+      var d = new Date(REPORT_START.getTime());
+      d.setDate(d.getDate() + i);
+      var m = d.getMonth(), day = d.getDate(), dow = d.getDay();
+      var isWeekend = (dow === 0 || dow === 6);
+      var isToday   = (i === todayOffset);
+
+      if (m !== curMonth) { curMonth = m; mData.push({ m: m, count: 0 }); }
+      mData[mData.length - 1].count++;
+
+      var cell = document.createElement('div');
+      cell.style.cssText = 'width:' + COL + 'px;flex-shrink:0;display:flex;align-items:center;' +
+        'justify-content:center;font-size:10px;border-right:1px solid #f0f0f0;' +
+        (isWeekend ? 'background:#fafafa;color:#BFC1C5;' : 'color:#5F6368;');
+
+      if (isToday) {
+        var span = document.createElement('span');
+        span.style.cssText = 'background:#1A73E8;color:#fff;border-radius:50%;width:20px;height:20px;' +
+          'display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;';
+        span.textContent = day;
+        cell.appendChild(span);
+      } else {
+        cell.textContent = day;
+        if (day === 1) cell.style.fontWeight = '700';
+      }
+      dayRow.appendChild(cell);
+    }
+
+    // ── Month row ──
+    for (var j = 0; j < mData.length; j++) {
+      var mc = document.createElement('div');
+      mc.style.cssText = 'width:' + (mData[j].count * COL) + 'px;flex-shrink:0;display:flex;' +
+        'align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#5F6368;' +
+        'letter-spacing:0.08em;border-right:' + (j < mData.length - 1 ? '2px solid #dfe1e6' : '0') + ';';
+      mc.textContent = MONTHS[mData[j].m].toUpperCase();
+      monthRow.appendChild(mc);
+    }
+
+    // ── Today line & triangle ──
+    if (todayOffset >= 0 && todayOffset < DAYS) {
+      var x = todayOffset * COL + COL / 2;
+      var line = document.getElementById('gantt-today-line');
+      var tri  = document.getElementById('gantt-today-tri');
+      if (line) line.style.left = x + 'px';
+      if (tri)  tri.style.left  = x + 'px';
+      var leg = document.getElementById('gantt-today-legend');
+      if (leg) leg.innerHTML =
+        '<span style="width:2px;height:14px;background:#1A73E8;display:inline-block;"></span>' +
+        'Today (' + MONTHS[today.getMonth()] + ' ' + today.getDate() + ')';
+    }
+
+    // ── Weekend shading ──
+    var wkContainer = document.getElementById('gantt-weekends');
+    if (wkContainer) {
+      for (var k = 0; k < DAYS; k++) {
+        var wd = new Date(REPORT_START.getTime());
+        wd.setDate(wd.getDate() + k);
+        if (wd.getDay() === 0 || wd.getDay() === 6) {
+          var bg = document.createElement('div');
+          bg.style.cssText = 'position:absolute;top:0;bottom:0;left:' + (k * COL) + 'px;' +
+            'width:' + COL + 'px;background:rgba(0,0,0,0.025);pointer-events:none;';
+          wkContainer.appendChild(bg);
+        }
+      }
+    }
+  })();
+
+  // Render cost-optimizations.json as collapsible per-section groups
+  (function () {
+    var STATUS_MAP = {
+      'committed: completed':   { short: 'Completed',   color: '#1E8E3E' },
+      'committed: in progress': { short: 'In Progress', color: '#1A73E8' },
+      "committed: won't do":    { short: "Won't Do",    color: '#80868B' },
+      'completed':              { short: 'Completed',   color: '#1E8E3E' },
+      'in progress':            { short: 'In Progress', color: '#1A73E8' },
+      'not started':            { short: 'Not Started', color: '#dadce0' },
+      'on hold':                { short: 'On Hold',     color: '#F9AB00' },
+    };
+
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function fmtMoney(val) {
+      if (!val && val !== 0) return null;
+      return '$' + Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    fetch('data/cost-optimizations.json')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var container = document.getElementById('cost-opt-projects');
+        if (!container) return;
+        var projects = data.projects || [];
+        if (!projects.length) return;
+
+        // Group by section, preserving order
+        var groups = [], groupMap = {};
+        projects.forEach(function (p) {
+          var sec = p.section || 'Other';
+          if (!groupMap[sec]) {
+            var g = { name: sec, projects: [], total: 0, hasUnknown: false };
+            groupMap[sec] = g;
+            groups.push(g);
+          }
+          groupMap[sec].projects.push(p);
+          var isWontDo = (p.status || '').toLowerCase().indexOf("won't do") !== -1;
+          if (!isWontDo && p.savings_2026 !== null && p.savings_2026 !== undefined) {
+            groupMap[sec].total += p.savings_2026;
+          } else if (!isWontDo) {
+            groupMap[sec].hasUnknown = true;
+          }
+        });
+
+        var html = '';
+        groups.forEach(function (g, i) {
+          var id = 'cg-' + i;
+          var countLabel = g.projects.length + ' Project' + (g.projects.length !== 1 ? 's' : '');
+          var savLabel = g.total ? fmtMoney(g.total) : null;
+          var summary = countLabel + (savLabel ? ' · Estimated Total Savings (2026): <strong>' + savLabel + (g.hasUnknown ? '+' : '') + '</strong>' : '');
+
+          html += '<div class="rounded-lg border border-gray-200 overflow-hidden">';
+
+          // Section header — clickable toggle
+          html += '<div onclick="var b=document.getElementById(\'' + id + '\');b.classList.toggle(\'hidden\');this.querySelector(\'.chev\').textContent=b.classList.contains(\'hidden\')?\'▶\':\'▼\';" '
+                + 'class="flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer select-none transition-colors">';
+          html += '<div>';
+          html += '<p class="text-sm font-semibold text-gray-700">' + esc(g.name) + '</p>';
+          html += '<p class="text-xs text-gray-500 mt-0.5">' + summary + '</p>';
+          html += '</div>';
+          html += '<span class="chev text-xs text-gray-400 ml-4 flex-shrink-0">▶</span>';
+          html += '</div>';
+
+          // Project rows — hidden by default, sorted by savings descending
+          var sorted = g.projects.slice().sort(function (a, b) {
+            var av = a.savings_2026 !== null && a.savings_2026 !== undefined ? Math.abs(a.savings_2026) : -1;
+            var bv = b.savings_2026 !== null && b.savings_2026 !== undefined ? Math.abs(b.savings_2026) : -1;
+            return bv - av;
+          });
+          html += '<div id="' + id + '" class="hidden divide-y divide-gray-100">';
+          sorted.forEach(function (p) {
+            var s = STATUS_MAP[(p.status || '').toLowerCase()] || { short: p.status, color: '#dadce0' };
+            var borderStyle = 'border-left: 3px solid ' + s.color + ';';
+
+            var meta = [];
+            var sav = fmtMoney(p.savings_2026);
+            if (sav) meta.push('<strong>' + sav + '</strong>' + (p.savings_period ? ' · ' + esc(p.savings_period) : ''));
+            if (p.owner) meta.push('Owner: ' + esc(p.owner));
+
+            var budgetTag = '';
+            var bv = (p.included_in_2026_budget || '').toUpperCase();
+            var pillBase = 'border-radius:9999px;padding:1px 7px;font-size:11px;font-weight:600;';
+            if (bv === 'TRUE')  budgetTag = ' · <span style="' + pillBase + 'background:#E6F4EA;color:#137333">&#10003; In Budget</span>';
+            if (bv === 'FALSE') budgetTag = ' · <span style="' + pillBase + 'background:#F1F3F4;color:#5F6368">Not in Budget</span>';
+
+            var offset = (p.offsetting_cost_increase || '').trim();
+            var offsetShort = offset.length > 80 ? offset.slice(0, 80) + '…' : offset;
+            var offsetHtml = (offset && offset !== '$0')
+              ? '<p class="text-xs mt-1" style="color:#E37400" title="' + esc(offset) + '">&#9651; Offset: ' + esc(offsetShort) + '</p>'
+              : '';
+
+            html += '<div class="flex gap-3 px-4 py-3 bg-white" style="' + borderStyle + '">';
+            html += '<div class="flex-1 min-w-0">';
+            html += '<div class="flex items-start justify-between gap-3">';
+            html += '<p class="text-sm font-semibold text-gray-800 leading-snug">' + esc(p.name) + '</p>';
+            html += '<span class="text-xs font-semibold whitespace-nowrap flex-shrink-0 mt-0.5" style="color:' + s.color + '">' + esc(s.short) + '</span>';
+            html += '</div>';
+            if (meta.length) html += '<p class="text-xs text-gray-500 mt-1">' + meta.join(' · ') + budgetTag + '</p>';
+            html += offsetHtml;
+            html += '</div></div>';
+          });
+          html += '</div></div>';
+        });
+
+        container.innerHTML = html;
+
+        // Update Savings Potential highlight card
+        var grandTotal = groups.reduce(function (sum, g) { return sum + g.total; }, 0);
+        var hasAnyUnknown = groups.some(function (g) { return g.hasUnknown; });
+        var activeCount = projects.filter(function (p) {
+          return (p.status || '').toLowerCase().indexOf("won't do") === -1;
+        }).length;
+        var wontDoCount = projects.length - activeCount;
+
+        var amountEl = document.getElementById('hl-savings-amount');
+        var noteEl   = document.getElementById('hl-savings-note');
+        if (amountEl) amountEl.textContent = fmtMoney(grandTotal) + (hasAnyUnknown ? '+' : '');
+        if (noteEl)   noteEl.textContent   = activeCount + ' active projects' +
+          (wontDoCount ? ' · ' + wontDoCount + ' Won\'t Do excluded' : '');
+      })
+      .catch(function () { /* file:// or offline — loading text stays */ });
+  })();
+  </script>
+</section>
+
+<!-- ============================================================
+     WORKSTREAM DETAILS: CORE/ENGINE + MYSQL
+============================================================ -->
+<section id="core-engine" class="section-anchor space-y-4">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest">Core / Engine &amp; MySQL</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">Core / Engine Migration</h3>
+        <span class="sb sb-at-risk">At Risk</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> CMS/GCI MongoDB Staging — Jun 3</li>
+          <li class="flex items-center gap-2"><span class="sb sb-at-risk" style="font-size:9px;">At Risk</span> Engine V1 GCP — <strong>Jun 30</strong></li>
+          <li class="flex items-center gap-2"><span class="sb sb-at-risk" style="font-size:9px;">At Risk</span> Engine V1 Prod — <strong>Jul 31</strong></li>
+          <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Not Started</span> Core/Engine Group 1 &amp; 2a — end 2026</li>
+          <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Not Started</span> Full migration — H2 2027</li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600">Engine V1 GCP (<strong>Jun 30</strong>) is the most time-critical milestone in the program — it gates every downstream workstream. Core Resilience (Jul 31) cannot begin until Engine V1 GCP is confirmed complete. A slip on Jun 30 cascades directly to Engine V1 Prod (<strong>Jul 31</strong>), Core Resilience (<strong>Jul 31</strong>), and UBO Ph1 (<strong>Sep 30</strong>). <strong>No mitigation plan for the Jun 30 date has been confirmed</strong>; engineering alignment is needed this week.</p>
+        <p class="source-tag">↗ GCP Project Timeline · CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">MySQL Consolidation</h3>
+        <span class="sb sb-blocked">Blocked</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <p class="font-medium text-gray-700">Open Decisions — Steven Vo</p>
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> PoC owner — Kirill candidate, unconfirmed</li>
+          <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> DR topology — Hieu &amp; Rost options prepared</li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600">MySQL is fully blocked on two parallel decisions that have not yet been made. <strong>The PoC owner (Kirill, candidate) must be confirmed</strong> before any technical scoping can begin. The <strong>DR topology selection</strong> — options prepared by Hieu and Rost — requires Steven Vo's approval before infrastructure design can proceed. <strong>Until both decisions are resolved, no timeline for MySQL migration can be established</strong> and no engineering work can be scoped.</p>
+        <p class="source-tag">↗ MySQL Consolidation Workbook · CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     WORKSTREAM DETAILS: ML + DATABRICKS
+============================================================ -->
+<section id="ml-databricks" class="section-anchor space-y-4">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest">ML Migration &amp; Databricks</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">ML Models Migration</h3>
+        <span class="sb sb-in-progress">In Progress</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> ML Models GCP — <strong>Aug 31 (est.)</strong></li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600">GCP infrastructure provisioning for ML Models is actively underway with no independent blockers at this stage. <strong>The Aug 31 completion estimate is contingent on Engine V1 GCP finishing on schedule by Jun 30</strong> — the dependency is direct. If Engine V1 GCP slips, the ML Models timeline will shift proportionally with no current buffer built in. <strong>Risk is inherited from the Engine V1 chain</strong>, not from ML-specific issues.</p>
+        <p class="source-tag">↗ GCP Project Timeline</p>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">Databricks</h3>
+        <span class="sb sb-parked">Parked — Jan 2027</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-parked" style="font-size:9px;">Parked</span> $350K budget — start Jan 2027</li>
+          <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Not Started</span> SOW scope TBD (standalone "SOW Databricks")</li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600">Databricks migration is intentionally parked with <strong>$350K PSF budget held until January 2027</strong> — no engineering resources are allocated in the current planning horizon. The SOW scope classification remains TBD and will be formalized as a standalone "SOW Databricks" once work resumes. A <strong>Monthly Business Review with Databricks is scheduled Jul 7</strong> to maintain the vendor relationship and review commercial terms during the pause. <strong>No action required before Jan 2027</strong> unless the business case changes.</p>
+        <p class="source-tag">↗ Cloud Infra Budget 2026 · Google Calendar</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     WORKSTREAM DETAILS: GEOGUARD + CMS/GCI
+============================================================ -->
+<section id="geoguard-cms" class="section-anchor space-y-4">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest">GeoGuard &amp; CMS / GCI</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">GeoGuard</h3>
+        <span class="sb sb-in-progress">Ph2 In Progress</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> Phase 1 — Jun 15</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> Phase 2 — <strong>Aug 31 (est.)</strong></li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600"><strong>GeoGuard Phase 1 completed on Jun 15</strong> as planned — Zencore delivered on schedule, marking a clean handoff to Phase 2. <strong>Phase 2 is now actively underway with an Aug 31 target</strong> (estimated) and no reported blockers from Zencore. Weekly narrative updates are available and confirm active progress; however, the Gantt timeline slides in the Phase 2 presentation are image-only and cannot be machine-read for automated status tracking. Progress is verified through written narrative summaries in the Zencore Phase 2 Weekly Updates document.</p>
+        <p class="source-tag">↗ Zencore Phase 2 Weekly Updates · CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">CMS / GCI</h3>
+        <span class="sb sb-at-risk">At Risk</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> MongoDB Staging (GCP) — Jun 3</li>
+          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Deadline</span> MongoDB $500K AWS Credit — <strong>Aug 31 hard</strong></li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600">MongoDB Staging on GCP completed successfully on Jun 3, marking a significant milestone for the CMS/GCI workstream. The outstanding critical item is the <strong>$500K AWS outcome-based credit, which requires MongoDB Write and Read clusters to be fully deprecated before Aug 31</strong>. <strong>This is a hard deadline with no extension possible</strong> — failure to act by Aug 31 results in the permanent loss of $500K in credits. <strong>Rost</strong> owns the deprecation action; <strong>Steven Vo's decision on the approach is required to unblock execution.</strong></p>
+        <p class="source-tag">↗ CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     WORKSTREAM DETAILS: RESILIENCE + SECURITY
+============================================================ -->
+<section id="resilience-security" class="section-anchor space-y-4">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest">Core Resilience &amp; Security</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">Core Resilience</h3>
+        <span class="sb sb-at-risk">At Risk</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-at-risk" style="font-size:9px;">At Risk</span> Target <strong>Jul 31</strong></li>
+          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Gated</span> Requires Engine V1 GCP (Jun 30) first</li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600">Core Resilience has no independent technical blockers — its <strong>sole dependency is Engine V1 GCP completing by Jun 30</strong>. The <strong>Jul 31 target cannot start until Engine V1 GCP is confirmed complete</strong>, meaning any slip cascades the full delay downstream. <strong>UBO Phase 1 is targeted Sep 30</strong> and follows the same dependency chain through Core Resilience. If Engine V1 GCP slips by even two weeks, <strong>the realistic completion of Core Resilience moves to mid-August at best, pushing UBO Ph1 toward Q4.</strong></p>
+        <p class="source-tag">↗ GCP Project Timeline · CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">Security / NGFW &amp; Cloud Armor</h3>
+        <span class="sb sb-in-progress">In Progress</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">Scoping</span> Cloud Armor — SOW 3 (~$100–110K)</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> NGFW evaluation ongoing</li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600">Cloud Armor has been confirmed as part of SOW 3 scope, with an <strong>estimated budget of $100–110K</strong> for the Zencore engagement. <strong>NGFW evaluation is ongoing — technology selection has not yet been finalized</strong> and a recommendation is expected before SOW 3 is signed. SOW 3 is currently in the scoping phase, consistent with the delivery model used for SOW 1 and SOW 2. <strong>No immediate blockers identified</strong>; this workstream is progressing independently of the Engine V1 GCP risk chain.</p>
+        <p class="source-tag">↗ Cloud Infra Budget 2026</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     FINANCIAL HEALTH
+============================================================ -->
+<section id="financial" class="section-anchor space-y-4">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest">Financial Health</h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <p class="text-xs text-ggrey-dark font-semibold uppercase tracking-wide mb-1">GCP 3-Year Commitment</p>
+      <p class="text-2xl font-bold text-gray-900">$24M</p>
+      <p class="text-sm text-gray-500 mt-1">Through 2028. Scenario: $27.2M optimized to $21M by 2028 via <a href="https://geocomply.atlassian.net/browse/UPRM-1990" target="_blank" class="text-gblue hover:underline">UPRM-1990</a>.</p>
+      <p class="source-tag mt-2">↗ CPR Jun 2, 2026 · <a href="https://geocomply.atlassian.net/browse/UPRM-1990" target="_blank" class="text-gblue hover:underline">UPRM-1990</a></p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <p class="text-xs text-ggrey-dark font-semibold uppercase tracking-wide mb-1">Q4 2026 Spend Target</p>
+      <p class="text-2xl font-bold text-gamber">$2.8M+</p>
+      <p class="text-sm text-gray-500 mt-1">Required to stay on 3-year commit pacing. Acceleration plan alignment in progress.</p>
+      <p class="source-tag mt-2">↗ <a href="https://geocomply.atlassian.net/browse/UPRM-1987" target="_blank" class="text-gblue hover:underline">UPRM-1987</a></p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <p class="text-xs text-ggrey-dark font-semibold uppercase tracking-wide mb-1">GCP Monthly Burn</p>
+      <p class="text-2xl font-bold text-gray-900">~Static</p>
+      <p class="text-sm text-gray-500 mt-1">Based on PowerBI screenshot Jun 17. Live stream via Connected Sheets targeted for Phase 2.</p>
+      <p class="source-tag mt-2">↗ PowerBI Screenshot Jun 17, 2026</p>
+    </div>
+  </div>
+
+  <!-- Savings potential -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+    <h3 class="font-semibold text-gray-900 mb-3">Cost Optimization Savings Potential (H2 2026)</h3>
+    <div id="cost-opt-projects" class="space-y-2">
+      <p class="text-sm text-gray-400 italic">Loading…</p>
+    </div>
+  </div>
+
+  <!-- Open cost anomalies -->
+  <div id="cost-anomalies" class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 section-anchor">
+    <h3 class="font-semibold text-gray-900 mb-3">Open Cost Anomaly Tickets <span class="sb sb-open ml-2">3 Open</span></h3>
+    <div class="space-y-3">
+      <div class="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
+        <span class="sb sb-p2 flex-shrink-0">P2</span>
+        <div>
+          <p class="text-sm font-semibold text-gray-800">IN-23971 — AWS OrgV2 EC2 Compute [engine] · Updated Jun 18</p>
+          <p class="text-sm text-gray-600">Since Jun 11: AWS OrgV2 engine accounts at 2x usual compute cost. Driven by <code class="text-xs bg-gray-100 px-1 rounded">engine-us-east-1-[a–e]-prod-cluster-engine-node-karpenter</code>. Suspected FiFa scaling.</p>
+          <p class="text-sm text-gray-600 mt-1">Assignee: Dmitryi Osmachko · Status: Backlog</p>
+          <p class="source-tag mt-1">↗ IN-23971 · Jira: cloud_cost_anomaly</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
+        <span class="sb sb-p2 flex-shrink-0">P2</span>
+        <div>
+          <p class="text-sm font-semibold text-gray-800">IN-23652 — GCP V2 Spanner · Updated Jun 17</p>
+          <p class="text-sm text-gray-600">Since May 14: Cloud Spanner daily costs on <code class="text-xs bg-gray-100 px-1 rounded">gc-v2-workloads0prod</code> up 200–300% for GTV. Investigating whether true anomaly vs. expected long-term increase.</p>
+          <p class="text-sm text-gray-600 mt-1">Assignee: Truc Giang · Status: Backlog</p>
+          <p class="source-tag mt-1">↗ IN-23652 · Jira: cloud_cost_anomaly</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <span class="sb sb-p2 flex-shrink-0">P2</span>
+        <div>
+          <p class="text-sm font-semibold text-gray-800">IN-21938 — GCP V1 Vertex AI (Claude Sonnet &amp; Opus) · Updated Feb 24</p>
+          <p class="text-sm text-gray-600">Cost increase reason and expected amount pending confirmation. No description detail available.</p>
+          <p class="text-sm text-gray-600 mt-1">Assignee: Sophia Peng · Status: Backlog</p>
+          <p class="source-tag mt-1">↗ IN-21938 · Jira: cloud_cost_anomaly</p>
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-ggrey mt-3">Note: 17 additional tickets with status "Done" exist in the backlog. GCP tagging coverage may be incomplete — untagged spend not reflected in anomaly tickets.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     EBR & UPCOMING
+============================================================ -->
+<section id="ebr" class="section-anchor">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">EBR &amp; Upcoming Events</h2>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+
+    <div class="p-4 flex items-start gap-4">
+      <div class="flex-shrink-0 w-12 text-center">
+        <p class="text-xs font-bold text-gblue uppercase">Jul</p>
+        <p class="text-2xl font-bold text-gray-900 leading-tight">16</p>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 flex-wrap">
+          <p class="font-semibold text-gray-900">Executive Business Review (EBR)</p>
+          <span class="sb sb-tentative">Tentative</span>
+        </div>
+        <p class="text-sm text-gray-600 mt-0.5">Target Jul 16, 2026. Not yet confirmed on calendar. Wajih coordinating with Steven Vo.</p>
+        <p class="source-tag mt-1">↗ Stated target — not yet on Google Calendar</p>
+      </div>
+    </div>
+
+    <div class="p-4 flex items-start gap-4">
+      <div class="flex-shrink-0 w-12 text-center">
+        <p class="text-xs font-bold text-gblue uppercase">Jul</p>
+        <p class="text-2xl font-bold text-gray-900 leading-tight">7</p>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold text-gray-900">Databricks x GeoComply Monthly Business Review</p>
+        <p class="text-sm text-gray-600 mt-0.5">3:00 PM ET. Monthly cadence. Databricks work parked until Jan 2027.</p>
+        <p class="source-tag mt-1">↗ Google Calendar</p>
+      </div>
+    </div>
+
+    <div class="p-4 flex items-start gap-4">
+      <div class="flex-shrink-0 w-12 text-center">
+        <p class="text-xs font-bold text-gblue uppercase">Weekly</p>
+        <p class="text-sm font-bold text-gray-900 leading-tight">Tue 9AM</p>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold text-gray-900">Update GCP for Product &amp; Engineering</p>
+        <p class="text-sm text-gray-600 mt-0.5">Weekly Tuesday 9AM ET. Attachment: Weekly Meetings Drive folder. Jira: <a href="https://geocomply.atlassian.net/browse/UPRM-1120" target="_blank" class="text-gblue hover:underline">UPRM-1120</a>.</p>
+        <p class="source-tag mt-1">↗ Google Calendar · <a href="https://geocomply.atlassian.net/browse/UPRM-1120" target="_blank" class="text-gblue hover:underline">UPRM-1120</a></p>
+      </div>
+    </div>
+
+    <div class="p-4 flex items-start gap-4">
+      <div class="flex-shrink-0 w-12 text-center">
+        <p class="text-xs font-bold text-gblue uppercase">Bi-wk</p>
+        <p class="text-sm font-bold text-gray-900 leading-tight">11AM ET</p>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold text-gray-900">GCP Project Weekly</p>
+        <p class="text-sm text-gray-600 mt-0.5">Bi-weekly: Jun 29, Jul 13, Jul 27 · 11AM ET. Attendees: Steven Vo, Rost, Anh, Kate, Andrii.</p>
+        <p class="source-tag mt-1">↗ Google Calendar</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     PSF / SOW SUMMARY
+============================================================ -->
+<section id="psf" class="section-anchor">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest mb-4">PSF / SOW Budget Summary</h2>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+
+    <div class="bg-gray-50 border-b border-gray-200 px-5 py-3 flex items-center justify-between">
+      <div>
+        <p class="text-sm font-semibold text-gray-700">Partner Specialization Fund (PSF) Total</p>
+        <p class="text-xl font-bold text-gray-900 mt-0.5">$1,285,000</p>
+      </div>
+      <div class="text-right">
+        <p class="text-xs text-ggrey">Zencore is the primary delivery partner</p>
+        <p class="source-tag">↗ Cloud Infra Budget 2026 · CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-xs font-semibold text-ggrey-dark uppercase tracking-wide bg-gray-50 border-b border-gray-200">
+            <th class="px-5 py-3">SOW</th>
+            <th class="px-5 py-3">Scope</th>
+            <th class="px-5 py-3">Budget</th>
+            <th class="px-5 py-3">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr class="hover:bg-gray-50">
+            <td class="px-5 py-3 font-semibold text-gray-800 whitespace-nowrap">SOW 1</td>
+            <td class="px-5 py-3 text-gray-600">GeoGuard Phase 1 + foundation work</td>
+            <td class="px-5 py-3 font-semibold text-gray-800">$479,500</td>
+            <td class="px-5 py-3"><span class="sb sb-consumed">Done</span></td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-5 py-3 font-semibold text-gray-800 whitespace-nowrap">SOW 2</td>
+            <td class="px-5 py-3 text-gray-600">GeoGuard Phase 2 + active delivery</td>
+            <td class="px-5 py-3 font-semibold text-gray-800">$315,000</td>
+            <td class="px-5 py-3"><span class="sb sb-active">Active</span></td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-5 py-3 font-semibold text-gray-800 whitespace-nowrap">SOW 3</td>
+            <td class="px-5 py-3 text-gray-600">Cloud Armor + security scope</td>
+            <td class="px-5 py-3 font-semibold text-gray-800">~$100–110K</td>
+            <td class="px-5 py-3"><span class="sb sb-scoping">Scoping</span></td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-5 py-3 font-semibold text-gray-800 whitespace-nowrap">SOW Databricks</td>
+            <td class="px-5 py-3 text-gray-600">Databricks migration (scope TBD)</td>
+            <td class="px-5 py-3 font-semibold text-gray-800">$350,000</td>
+            <td class="px-5 py-3"><span class="sb sb-parked">Parked Jan 2027</span></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="bg-gray-50 border-t border-gray-200">
+            <td class="px-5 py-3 font-bold text-gray-900" colspan="2">Total</td>
+            <td class="px-5 py-3 font-bold text-gray-900">$1,285,000</td>
+            <td class="px-5 py-3"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="mt-12 border-t border-gray-200 bg-white">
+  <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-ggrey">
+    <div>
+      <p class="font-semibold text-gray-600">GCP Migration Program Dashboard</p>
+      <p>Generated: Jun 18, 2026 · Claude Code Routine (Sonnet 4.6)</p>
+      <p class="mt-1">Sources: Jira (cloud_cost_anomaly), Google Sheets (GCP Timeline, Cloud Infra Budget, MySQL Workbook), Google Drive (Zencore, SOW Deck), Google Calendar, Gmail (meeting notes)</p>
+    </div>
+    <div class="text-right">
+      <p class="font-medium text-gray-500">Verifiability Policy</p>
+      <p>Every data point cites a source. No extrapolation. Uncited items are omitted.</p>
+      <p class="mt-1">Published to: <span class="font-mono text-gblue">gcp-migration/index.html</span></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    document.querySelectorAll('.detail-card .divider').forEach(function (divider) {
+      var p = divider.nextElementSibling;
+      if (!p || p.tagName !== 'P' || p.classList.contains('source-tag')) return;
+      p.classList.add('ws-clamp');
+      if (p.scrollHeight <= p.clientHeight) return;
+      var btn = document.createElement('button');
+      btn.style.cssText = 'color:#1A73E8;font-size:12px;font-weight:600;margin-top:4px;display:block;background:none;border:none;cursor:pointer;padding:0;';
+      btn.textContent = 'Show more';
+      btn.addEventListener('click', function () {
+        var collapsed = p.classList.toggle('ws-clamp');
+        btn.textContent = collapsed ? 'Show more' : 'Show less';
+      });
+      p.parentNode.insertBefore(btn, p.nextSibling);
+    });
+  })();
+</script>
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+<script>
+  (function () {
+    var btn = document.getElementById('back-to-top');
+    window.addEventListener('scroll', function () {
+      btn.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+  })();
+</script>
+</body>
+</html>
