@@ -207,8 +207,8 @@
         <span class="sb sb-at-risk">At Risk</span>
       </div>
       <p class="text-2xl font-bold text-gray-900 mt-1">Jun 30</p>
-      <p class="text-sm font-semibold text-gamber mt-0.5">12 days remaining</p>
-      <p class="text-xs text-gray-500 mt-2 leading-snug">Milestone at risk. Core Resilience (Jul 31) is gated on this.</p>
+      <p class="text-sm font-semibold text-gamber mt-0.5">8 days remaining</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">Milestone at risk. Core Resilience is blocked on GeoComply decisions.</p>
       <p class="source-tag mt-3">↗ GCP Project Timeline</p>
     </a>
 
@@ -219,7 +219,7 @@
       </div>
       <p class="text-2xl font-bold text-gray-900 mt-1">2 Open</p>
       <p class="text-sm font-semibold text-gray-800 mt-0.5">Decisions for Steven Vo</p>
-      <p class="text-xs text-gray-500 mt-2 leading-snug">PoC owner unconfirmed. DR topology options ready, awaiting decision.</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">Kirill confirmed PoC owner, researching solution. DR topology decision pending Steven Vo.</p>
       <p class="source-tag mt-3">↗ CPR Jun 2, 2026</p>
     </a>
 
@@ -239,9 +239,9 @@
         <p class="text-xs font-bold text-ggrey-dark uppercase tracking-wide leading-tight">Open Decisions</p>
         <span class="sb sb-at-risk">Attention</span>
       </div>
-      <p class="text-2xl font-bold text-gray-900 mt-1">5 Items</p>
+      <p class="text-2xl font-bold text-gray-900 mt-1">3 Items</p>
       <p class="text-sm font-semibold text-gamber mt-0.5">Awaiting Steven Vo</p>
-      <p class="text-xs text-gray-500 mt-2 leading-snug">MySQL PoC, MySQL DR, MongoDB credit, GCP spend ramp, <a href="https://geocomply.atlassian.net/browse/UPRM-1990" target="_blank" class="text-gblue hover:underline" onclick="event.stopPropagation()">UPRM-1990</a>.</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">MySQL DR topology, MongoDB credit, <a href="https://geocomply.atlassian.net/browse/UPRM-1990" target="_blank" class="text-gblue hover:underline" onclick="event.stopPropagation()">UPRM-1990</a>.</p>
       <p class="source-tag mt-3">↗ CPR Jun 2, 2026</p>
     </div>
 
@@ -250,7 +250,7 @@
         <p class="text-xs font-bold text-ggrey-dark uppercase tracking-wide leading-tight">Savings Potential</p>
         <span class="sb sb-at-risk">Action Req.</span>
       </div>
-      <p id="hl-savings-amount" class="text-2xl font-bold text-ggreen mt-1">~$1.06M</p>
+      <p id="hl-savings-amount" class="text-2xl font-bold text-ggreen mt-1">~$7.37M</p>
       <p id="hl-savings-sub" class="text-sm font-semibold text-ggreen-dark mt-0.5">2026 projected savings</p>
       <p id="hl-savings-note" class="text-xs text-gray-500 mt-2 leading-snug">Loading from Cloud Infra Budget 2026…</p>
       <p class="source-tag mt-3">↗ Cloud Infra Budget 2026</p>
@@ -267,22 +267,22 @@
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
 
     <div class="p-4 flex items-start gap-3">
-      <span class="sb sb-blocked mt-0.5 flex-shrink-0">Urgent</span>
+      <span class="sb sb-in-progress mt-0.5 flex-shrink-0">In Progress</span>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="font-semibold text-sm text-gray-900">MongoDB $500K AWS Credit</span>
           <span class="sb sb-at-risk">Hard Deadline Aug 31</span>
         </div>
-        <p class="text-sm text-gray-600 mt-1">Rost must deprecate MongoDB Write &amp; Read cluster before Aug 31. Credit expires — no extension. Steven Vo decision requested.</p>
+        <p class="text-sm text-gray-600 mt-1">Andrii is submitting the $500K AWS outcome-based credit application. Aug 31 hard deadline remains active — no extension possible.</p>
         <p class="source-tag mt-1">↗ CPR Jun 2, 2026 · Cloud Infra Budget 2026</p>
       </div>
     </div>
 
     <div class="p-4 flex items-start gap-3">
-      <span class="sb sb-blocked mt-0.5 flex-shrink-0">Blocked</span>
+      <span class="sb sb-in-progress mt-0.5 flex-shrink-0">In Progress</span>
       <div class="flex-1 min-w-0">
-        <p class="font-semibold text-sm text-gray-900">MySQL PoC Owner</p>
-        <p class="text-sm text-gray-600 mt-1">Kirill identified as candidate but ownership unconfirmed. Blocking MySQL migration planning entirely until resolved.</p>
+        <p class="font-semibold text-sm text-gray-900">MySQL PoC — Kirill Researching</p>
+        <p class="text-sm text-gray-600 mt-1">Kirill is the confirmed PoC owner and is currently investigating the solution. Update expected before DR topology can be finalized.</p>
         <p class="source-tag mt-1">↗ CPR Jun 2, 2026</p>
       </div>
     </div>
@@ -293,17 +293,6 @@
         <p class="font-semibold text-sm text-gray-900">MySQL DR Topology Decision</p>
         <p class="text-sm text-gray-600 mt-1">Hieu and Rost have options prepared. Steven Vo decision required before topology is finalized and work can be scoped.</p>
         <p class="source-tag mt-1">↗ CPR Jun 2, 2026</p>
-      </div>
-    </div>
-
-    <div class="p-4 flex items-start gap-3">
-      <span class="sb sb-at-risk mt-0.5 flex-shrink-0">At Risk</span>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="font-semibold text-sm text-gray-900">GCP Spend Ramp (<a href="https://geocomply.atlassian.net/browse/UPRM-1987" target="_blank" class="text-gblue hover:underline">UPRM-1987</a>)</span>
-        </div>
-        <p class="text-sm text-gray-600 mt-1">$2.8M+ GCP spend required by Q4 2026 to meet 3-year commit pacing. Engineering acceleration plan alignment still in progress.</p>
-        <p class="source-tag mt-1">↗ <a href="https://geocomply.atlassian.net/browse/UPRM-1987" target="_blank" class="text-gblue hover:underline">UPRM-1987</a> · CPR Jun 2, 2026</p>
       </div>
     </div>
 
@@ -376,29 +365,29 @@
         </tr>
         <tr class="hover:bg-gray-50">
           <td class="px-5 py-3 font-semibold text-gray-800"><a href="#ml-databricks" class="text-gblue hover:underline">Databricks</a></td>
-          <td class="px-5 py-3"><span class="sb sb-parked">Parked</span></td>
-          <td class="px-5 py-3 text-gray-600">Jan 2027</td>
+          <td class="px-5 py-3"><span class="sb sb-in-progress">Contract Review</span></td>
+          <td class="px-5 py-3 text-gray-600">MBR Jul 7 · Contract in review</td>
           <td class="px-5 py-3 text-gray-500">—</td>
           <td class="px-5 py-3 source-tag">↗ Cloud Infra Budget 2026</td>
         </tr>
         <tr class="hover:bg-gray-50">
           <td class="px-5 py-3 font-semibold text-gray-800"><a href="#geoguard-cms" class="text-gblue hover:underline">GeoGuard</a></td>
-          <td class="px-5 py-3"><span class="sb sb-in-progress">In Progress</span></td>
-          <td class="px-5 py-3 text-gray-600">Phase 2 — <strong>Aug 31 (est.)</strong></td>
+          <td class="px-5 py-3"><span class="sb sb-in-progress">Ph1 Underway</span></td>
+          <td class="px-5 py-3 text-gray-600">Phase 1 in progress · Ph2 blocked</td>
           <td class="px-5 py-3 text-gray-500">Zencore</td>
           <td class="px-5 py-3 source-tag">↗ Zencore Weekly Updates</td>
         </tr>
         <tr class="hover:bg-gray-50">
           <td class="px-5 py-3 font-semibold text-gray-800"><a href="#geoguard-cms" class="text-gblue hover:underline">CMS / GCI</a></td>
-          <td class="px-5 py-3"><span class="sb sb-at-risk">At Risk</span></td>
-          <td class="px-5 py-3 text-gray-600">MongoDB credit — <strong>Aug 31 hard</strong></td>
-          <td class="px-5 py-3 text-gray-500">Rost</td>
+          <td class="px-5 py-3"><span class="sb sb-in-progress">In Progress</span></td>
+          <td class="px-5 py-3 text-gray-600">Valkey Jun 22 · S3→GCS next week</td>
+          <td class="px-5 py-3 text-gray-500">Zencore / CMS team</td>
           <td class="px-5 py-3 source-tag">↗ CPR Jun 2, 2026</td>
         </tr>
         <tr class="hover:bg-gray-50">
           <td class="px-5 py-3 font-semibold text-gray-800"><a href="#resilience-security" class="text-gblue hover:underline">Core Resilience</a></td>
-          <td class="px-5 py-3"><span class="sb sb-at-risk">At Risk</span></td>
-          <td class="px-5 py-3 text-gray-600">Jul 31 (gated on Engine V1 GCP)</td>
+          <td class="px-5 py-3"><span class="sb sb-blocked">Blocked</span></td>
+          <td class="px-5 py-3 text-gray-600">Jul 31 (blocked on MySQL research)</td>
           <td class="px-5 py-3 text-gray-500">Engineering</td>
           <td class="px-5 py-3 source-tag">↗ GCP Project Timeline</td>
         </tr>
@@ -947,6 +936,13 @@
       if (!val && val !== 0) return null;
       return '$' + Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
+    function fmtCompact(val) {
+      if (!val && val !== 0) return null;
+      var abs = Math.abs(val);
+      if (abs >= 1e6) return '~$' + (abs / 1e6).toFixed(2) + 'M';
+      if (abs >= 1e3) return '~$' + (abs / 1e3).toFixed(1) + 'K';
+      return '$' + abs.toFixed(0);
+    }
 
     fetch('data/cost-optimizations.json')
       .then(function (r) { return r.json(); })
@@ -1046,7 +1042,7 @@
 
         var amountEl = document.getElementById('hl-savings-amount');
         var noteEl   = document.getElementById('hl-savings-note');
-        if (amountEl) amountEl.textContent = fmtMoney(grandTotal) + (hasAnyUnknown ? '+' : '');
+        if (amountEl) amountEl.textContent = fmtCompact(grandTotal) + (hasAnyUnknown ? '+' : '');
         if (noteEl)   noteEl.textContent   = activeCount + ' active projects' +
           (wontDoCount ? ' · ' + wontDoCount + ' Won\'t Do excluded' : '');
       })
@@ -1076,7 +1072,7 @@
           <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Not Started</span> Full migration — H2 2027</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">Engine V1 GCP (<strong>Jun 30</strong>) is the most time-critical milestone in the program — it gates every downstream workstream. Core Resilience (Jul 31) cannot begin until Engine V1 GCP is confirmed complete. A slip on Jun 30 cascades directly to Engine V1 Prod (<strong>Jul 31</strong>), Core Resilience (<strong>Jul 31</strong>), and UBO Ph1 (<strong>Sep 30</strong>). <strong>No mitigation plan for the Jun 30 date has been confirmed</strong>; engineering alignment is needed this week.</p>
+        <p class="text-gray-600">Engine V1 GCP (<strong>Jun 30</strong>) is the most time-critical milestone in the program. A slip on Jun 30 cascades directly to Engine V1 Prod (<strong>Jul 31</strong>). <strong>Core Resilience is in progress but currently blocked on GeoComply decisions</strong> — specifically waiting on MySQL research being led by Kirill. Engineering alignment on MySQL is needed before Core Resilience planning can advance.</p>
         <p class="source-tag">↗ GCP Project Timeline · CPR Jun 2, 2026</p>
       </div>
     </div>
@@ -1089,12 +1085,54 @@
       <div class="space-y-3 text-sm">
         <p class="font-medium text-gray-700">Open Decisions — Steven Vo</p>
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> PoC owner — Kirill candidate, unconfirmed</li>
+          <li class="flex items-start gap-2"><span class="sb sb-in-progress flex-shrink-0" style="font-size:9px;">In Progress</span> PoC owner — Kirill researching solution</li>
           <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> DR topology — Hieu &amp; Rost options prepared</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">MySQL is fully blocked on two parallel decisions that have not yet been made. <strong>The PoC owner (Kirill, candidate) must be confirmed</strong> before any technical scoping can begin. The <strong>DR topology selection</strong> — options prepared by Hieu and Rost — requires Steven Vo's approval before infrastructure design can proceed. <strong>Until both decisions are resolved, no timeline for MySQL migration can be established</strong> and no engineering work can be scoped.</p>
+        <p class="text-gray-600">Kirill is confirmed as <strong>PoC owner</strong> and is actively researching the solution. The <strong>DR topology selection</strong> — options prepared by Hieu and Rost — still requires Steven Vo's decision before infrastructure design can proceed. <strong>Core Resilience planning is waiting on Kirill's MySQL research update</strong> before architectural decisions can be made.</p>
         <p class="source-tag">↗ MySQL Consolidation Workbook · CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     WORKSTREAM DETAILS: RESILIENCE + SECURITY
+============================================================ -->
+<section id="resilience-security" class="section-anchor space-y-4">
+  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest">Core Resilience &amp; Security</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">Core Resilience</h3>
+        <span class="sb sb-blocked">Blocked</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Blocked</span> Target <strong>Jul 31</strong></li>
+          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Waiting</span> MySQL research update from Kirill</li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600">Core Resilience is in progress but <strong>blocked on GeoComply decisions</strong> — specifically waiting on Kirill's MySQL research findings. <strong>MySQL architectural decisions must be made before Core Resilience planning can advance.</strong> The Jul 31 target remains the goal, but progress depends on the MySQL PoC update from Kirill.</p>
+        <p class="source-tag">↗ GCP Project Timeline · CPR Jun 2, 2026</p>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-900">Security / NGFW</h3>
+        <span class="sb sb-in-progress">In Progress</span>
+      </div>
+      <div class="space-y-3 text-sm">
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> NGFW evaluation ongoing</li>
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> Security workstream kickoff — Jun 17</li>
+        </ul>
+        <div class="divider"></div>
+        <p class="text-gray-600"><strong>Security workstream kickoff was held Jun 17</strong> ("GeoComply Phase 2 - Security workstream kickoff"). <strong>NGFW evaluation is ongoing</strong> — technology selection has not yet been finalized. SOW 3 is in the scoping phase; no immediate blockers identified.</p>
+        <p class="source-tag">↗ Cloud Infra Budget 2026</p>
       </div>
     </div>
 
@@ -1118,7 +1156,7 @@
           <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> ML Models GCP — <strong>Aug 31 (est.)</strong></li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">GCP infrastructure provisioning for ML Models is actively underway with no independent blockers at this stage. <strong>The Aug 31 completion estimate is contingent on Engine V1 GCP finishing on schedule by Jun 30</strong> — the dependency is direct. If Engine V1 GCP slips, the ML Models timeline will shift proportionally with no current buffer built in. <strong>Risk is inherited from the Engine V1 chain</strong>, not from ML-specific issues.</p>
+        <p class="text-gray-600">GCP infrastructure provisioning for ML Models is actively underway with <strong>no reported blockers</strong> at this stage. The Aug 31 target is tracked independently. Progress is reviewed through weekly ML Platform Migration syncs.</p>
         <p class="source-tag">↗ GCP Project Timeline</p>
       </div>
     </div>
@@ -1126,15 +1164,15 @@
     <div class="detail-card">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-semibold text-gray-900">Databricks</h3>
-        <span class="sb sb-parked">Parked — Jan 2027</span>
+        <span class="sb sb-in-progress">Contract Review</span>
       </div>
       <div class="space-y-3 text-sm">
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-center gap-2"><span class="sb sb-parked" style="font-size:9px;">Parked</span> $350K budget — start Jan 2027</li>
-          <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Not Started</span> SOW scope TBD (standalone "SOW Databricks")</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Review</span> Contract received Jun 22 — under review</li>
+          <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Upcoming</span> Business Review — <strong>Jul 7, 3PM ET</strong></li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">Databricks migration is intentionally parked with <strong>$350K PSF budget held until January 2027</strong> — no engineering resources are allocated in the current planning horizon. The SOW scope classification remains TBD and will be formalized as a standalone "SOW Databricks" once work resumes. A <strong>Monthly Business Review with Databricks is scheduled Jul 7</strong> to maintain the vendor relationship and review commercial terms during the pause. <strong>No action required before Jan 2027</strong> unless the business case changes.</p>
+        <p class="text-gray-600">Databricks contract negotiations are active. <strong>A revised contract was received on Jun 22</strong> and is currently under review by GeoComply. The negotiation focuses on <strong>moving $108K from existing AWS commitments to GCP</strong>. A <strong>Monthly Business Review is scheduled Jul 7</strong> at 3PM ET to align on commercial terms and next steps.</p>
         <p class="source-tag">↗ Cloud Infra Budget 2026 · Google Calendar</p>
       </div>
     </div>
@@ -1152,74 +1190,33 @@
     <div class="detail-card">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-semibold text-gray-900">GeoGuard</h3>
-        <span class="sb sb-in-progress">Ph2 In Progress</span>
+        <span class="sb sb-in-progress">Ph1 Underway</span>
       </div>
       <div class="space-y-3 text-sm">
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> Phase 1 — Jun 15</li>
-          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> Phase 2 — <strong>Aug 31 (est.)</strong></li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> Phase 1 — underway</li>
+          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Blocked</span> Phase 2 — awaiting Ph1 completion</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600"><strong>GeoGuard Phase 1 completed on Jun 15</strong> as planned — Zencore delivered on schedule, marking a clean handoff to Phase 2. <strong>Phase 2 is now actively underway with an Aug 31 target</strong> (estimated) and no reported blockers from Zencore. Weekly narrative updates are available and confirm active progress; however, the Gantt timeline slides in the Phase 2 presentation are image-only and cannot be machine-read for automated status tracking. Progress is verified through written narrative summaries in the Zencore Phase 2 Weekly Updates document.</p>
-        <p class="source-tag">↗ Zencore Phase 2 Weekly Updates · CPR Jun 2, 2026</p>
+        <p class="text-gray-600"><strong>GeoGuard Phase 1 is actively underway</strong> — Zencore is working on cron job refactoring to Cloud Run Jobs + Scheduler, MySQL connectivity from GCP, and regional API deployment to staging. <strong>Phase 2 is blocked pending Phase 1 completion.</strong> Discussions on GeoGuard Marketplace (MP) integration with GCP are ongoing — alignment not yet reached. Cloud Armor kickoff was held Jun 17 as part of Phase 2 scoping.</p>
+        <p class="source-tag">↗ #ext-geocomply-zencore · CPR Jun 2, 2026</p>
       </div>
     </div>
 
     <div class="detail-card">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-semibold text-gray-900">CMS / GCI</h3>
-        <span class="sb sb-at-risk">At Risk</span>
-      </div>
-      <div class="space-y-3 text-sm">
-        <ul class="space-y-2 text-gray-600">
-          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> MongoDB Staging (GCP) — Jun 3</li>
-          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Deadline</span> MongoDB $500K AWS Credit — <strong>Aug 31 hard</strong></li>
-        </ul>
-        <div class="divider"></div>
-        <p class="text-gray-600">MongoDB Staging on GCP completed successfully on Jun 3, marking a significant milestone for the CMS/GCI workstream. The outstanding critical item is the <strong>$500K AWS outcome-based credit, which requires MongoDB Write and Read clusters to be fully deprecated before Aug 31</strong>. <strong>This is a hard deadline with no extension possible</strong> — failure to act by Aug 31 results in the permanent loss of $500K in credits. <strong>Rost</strong> owns the deprecation action; <strong>Steven Vo's decision on the approach is required to unblock execution.</strong></p>
-        <p class="source-tag">↗ CPR Jun 2, 2026</p>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ============================================================
-     WORKSTREAM DETAILS: RESILIENCE + SECURITY
-============================================================ -->
-<section id="resilience-security" class="section-anchor space-y-4">
-  <h2 class="text-base font-semibold text-gray-500 uppercase tracking-widest">Core Resilience &amp; Security</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-    <div class="detail-card">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-900">Core Resilience</h3>
-        <span class="sb sb-at-risk">At Risk</span>
-      </div>
-      <div class="space-y-3 text-sm">
-        <ul class="space-y-2 text-gray-600">
-          <li class="flex items-center gap-2"><span class="sb sb-at-risk" style="font-size:9px;">At Risk</span> Target <strong>Jul 31</strong></li>
-          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Gated</span> Requires Engine V1 GCP (Jun 30) first</li>
-        </ul>
-        <div class="divider"></div>
-        <p class="text-gray-600">Core Resilience has no independent technical blockers — its <strong>sole dependency is Engine V1 GCP completing by Jun 30</strong>. The <strong>Jul 31 target cannot start until Engine V1 GCP is confirmed complete</strong>, meaning any slip cascades the full delay downstream. <strong>UBO Phase 1 is targeted Sep 30</strong> and follows the same dependency chain through Core Resilience. If Engine V1 GCP slips by even two weeks, <strong>the realistic completion of Core Resilience moves to mid-August at best, pushing UBO Ph1 toward Q4.</strong></p>
-        <p class="source-tag">↗ GCP Project Timeline · CPR Jun 2, 2026</p>
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-900">Security / NGFW &amp; Cloud Armor</h3>
         <span class="sb sb-in-progress">In Progress</span>
       </div>
       <div class="space-y-3 text-sm">
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">Scoping</span> Cloud Armor — SOW 3 (~$100–110K)</li>
-          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> NGFW evaluation ongoing</li>
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> MongoDB Staging (GCP) — Jun 3</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">Today</span> Valkey (Redis) cutover — Jun 22</li>
+          <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Next</span> S3→GCS cutover — proposed early next week</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">Cloud Armor has been confirmed as part of SOW 3 scope, with an <strong>estimated budget of $100–110K</strong> for the Zencore engagement. <strong>NGFW evaluation is ongoing — technology selection has not yet been finalized</strong> and a recommendation is expected before SOW 3 is signed. SOW 3 is currently in the scoping phase, consistent with the delivery model used for SOW 1 and SOW 2. <strong>No immediate blockers identified</strong>; this workstream is progressing independently of the Engine V1 GCP risk chain.</p>
-        <p class="source-tag">↗ Cloud Infra Budget 2026</p>
+        <p class="text-gray-600">MongoDB Staging on GCP completed Jun 3. <strong>Valkey cutover is planned for today (Jun 22)</strong> — the team pivoted to a RIOT-based live replication approach after an ElastiCache snapshot import failed (~27K keys, under 30 seconds). <strong>S3→GCS cutover is proposed for early next week.</strong> Production cutover for Webtools and RMS is also being coordinated. Zencore and the CMS team are actively working through the remaining migration steps.</p>
+        <p class="source-tag">↗ #ext-geocomply-zencore · Jun 22, 2026</p>
       </div>
     </div>
 
