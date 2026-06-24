@@ -219,7 +219,7 @@
       </div>
       <p class="text-2xl font-bold text-gray-900 mt-1">2 Open</p>
       <p class="text-sm font-semibold text-gray-800 mt-0.5">Decisions for Steven Vo</p>
-      <p class="text-xs text-gray-500 mt-2 leading-snug">Kirill confirmed PoC owner, researching solution. DR topology decision pending Steven Vo.</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">Kirill's analysis complete. Two paths remain — Engine team input needed before Steven Vo decides.</p>
       <p class="source-tag mt-3">↗ CPR Jun 2, 2026</p>
     </a>
 
@@ -280,8 +280,8 @@
     <div class="p-4 flex items-start gap-3">
       <span class="sb sb-in-progress mt-0.5 flex-shrink-0" style="min-width:88px;justify-content:center;">In Progress</span>
       <div class="flex-1 min-w-0">
-        <p class="font-semibold text-sm text-gray-900">MySQL PoC — Kirill Researching</p>
-        <p class="text-sm text-gray-600 mt-1">Kirill is the confirmed PoC owner and is currently investigating the solution. Update expected before DR topology can be finalized.</p>
+        <p class="font-semibold text-sm text-gray-900">MySQL PoC — Path Selection</p>
+        <p class="text-sm text-gray-600 mt-1">Cron-every-30s approach ruled out. Two paths remain: MySQL replication (0.5–1% collision risk) or single primary write (zero collision). Engine team input needed from Hieu, Artem, and Thomas before a path is selected.</p>
       </div>
     </div>
 
@@ -289,7 +289,7 @@
       <span class="sb sb-blocked mt-0.5 flex-shrink-0" style="min-width:88px;justify-content:center;">Blocked</span>
       <div class="flex-1 min-w-0">
         <p class="font-semibold text-sm text-gray-900">MySQL DR Topology Decision</p>
-        <p class="text-sm text-gray-600 mt-1">Hieu and Rost have options prepared. Steven Vo decision required before topology is finalized and work can be scoped.</p>
+        <p class="text-sm text-gray-600 mt-1">Pending Engine team response to Kirill's analysis. Steven Vo decision follows once a path is confirmed.</p>
       </div>
     </div>
 
@@ -1080,11 +1080,11 @@
       <div class="space-y-3 text-sm">
         <p class="font-medium text-gray-700">Open Decisions — Steven Vo</p>
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-start gap-2"><span class="sb sb-in-progress flex-shrink-0" style="font-size:9px;">In Progress</span> PoC owner — Kirill researching solution</li>
-          <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> DR topology — Hieu &amp; Rost options prepared</li>
+          <li class="flex items-start gap-2"><span class="sb sb-in-progress flex-shrink-0" style="font-size:9px;">In Progress</span> Kirill's analysis complete — 2 paths identified, Engine team input pending</li>
+          <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> DR topology — awaiting path selection</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">Kirill is confirmed as <strong>PoC owner</strong> and is researching the solution. DR topology options are ready (Hieu and Rost), waiting on Steven Vo's decision. <strong>Core Resilience is on hold until Kirill's update.</strong></p>
+        <p class="text-gray-600">Cron-every-30s approach ruled out after Kibana analysis. Two paths remain: <strong>MySQL replication</strong> (0.5–1% collision risk) or <strong>single primary write</strong> (zero collision). Engine team input needed before path is selected. <strong>Core Resilience is on hold until the decision lands.</strong></p>
         <p class="source-tag">↗ MySQL Consolidation Workbook · CPR Jun 2, 2026</p>
       </div>
     </div>
@@ -1110,7 +1110,7 @@
           <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Waiting</span> MySQL research update from Kirill</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600"><strong>Blocked on our side.</strong> Waiting on Kirill's MySQL research before architecture decisions can be made. Jul 31 target stands.</p>
+        <p class="text-gray-600"><strong>Blocked on our side.</strong> Waiting on Engine team input on Kirill's MySQL path analysis before architecture decisions can be made. Jul 31 target stands.</p>
         <p class="source-tag">↗ GCP Project Timeline · CPR Jun 2, 2026</p>
       </div>
     </div>
