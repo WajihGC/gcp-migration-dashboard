@@ -1,29 +1,34 @@
 # GCP Migration Dashboard — Routine Instructions
 
 ## What this routine does
-Checks Slack for updates, determines what changed since the last run, updates the dashboard HTML, pushes to GitHub Pages, and drops a Slack draft in Wajih's DM for review before it goes to the team.
+Checks Slack for updates since the last run, updates the dashboard, pushes to GitHub Pages, and drops a Slack draft in Wajih's DM for review before it goes to the team.
 
-## Files
-- Dashboard HTML: `/Users/wajihbizreh/Downloads/gcp-migration-dashboard.html`
-- Git repo: `/tmp/gcp-dashboard/`
-- GitHub Pages: https://wajihgc.github.io/gcp-migration-dashboard/
-- Push command: `git push https://WajihGC:$(gh auth token --hostname github.com)@github.com/WajihGC/gcp-migration-dashboard.git HEAD:main`
+## Dashboard file
+Read the current dashboard from GitHub:
+https://raw.githubusercontent.com/WajihGC/gcp-migration-dashboard/main/index.html
+
+After making updates, write the new version back to the repo using the GitHub connector:
+- Repo: WajihGC/gcp-migration-dashboard
+- Branch: main
+- File: index.html
+
+GitHub Pages will serve the updated file automatically at:
+https://wajihgc.github.io/gcp-migration-dashboard/
 
 ## Slack channels to check (search last 3 days)
-- `#stack-2-and-gcp-planning` (C089ECK4J73) — MySQL, Engine, Core Resilience
-- `#ext-geocomply-zencore` (C08J4PNJZ2N) — GeoGuard, CMS/GCI, Security, S3→GCS
-- `#engine-costs-2026` — MySQL cost analysis, Kirill's research
-- `#engine-cicd-containerization` — Engine containerization progress
-- Wajih's DM (U057V3QCLK0) — check for any self-notes Wajih has left
+- #stack-2-and-gcp-planning (C089ECK4J73) — MySQL, Engine, Core Resilience
+- #ext-geocomply-zencore (C08J4PNJZ2N) — GeoGuard, CMS/GCI, Security, S3→GCS
+- #engine-costs-2026 — MySQL cost analysis, Kirill's research
+- #engine-cicd-containerization — Engine containerization progress
 
 ## Search queries to run
-1. `from:kirill.polishchuk` — MySQL PoC progress
-2. `GeoGuard Phase zencore` — GeoGuard Phase 1/2 status
-3. `Valkey CMS GCI S3 GCS cutover` — CMS/GCI migration status
-4. `Databricks contract MBR` — Databricks updates
-5. `MongoDB credit AWS Andrii` — MongoDB credit status
-6. `Engine V1 GCP containerization Jun 30` — Engine deadline
-7. `Core Resilience Security NGFW` — Security workstream
+1. from:kirill.polishchuk — MySQL PoC progress
+2. GeoGuard Phase zencore — GeoGuard Phase 1/2 status
+3. Valkey CMS GCI S3 GCS cutover — CMS/GCI migration status
+4. Databricks contract MBR — Databricks updates
+5. MongoDB credit AWS Andrii — MongoDB credit status
+6. Engine V1 GCP containerization Jun 30 — Engine deadline
+7. Core Resilience Security NGFW — Security workstream
 
 ## Sections to update
 Only update a section when Slack confirms something materially changed. Never update without a source. Do not remove existing content without a source confirming it changed.
@@ -48,7 +53,7 @@ Assert as fact only when confirmed in Slack or a Jira ticket.
 If you cannot find a source:
 - Flag it in your session report to Wajih
 - Do not include the unconfirmed claim in the dashboard
-- Do not silently leave old content in place if you know it's wrong — flag the conflict
+- Do not silently leave old content in place if you know it is wrong — flag the conflict
 
 ## Standing items — always verify, update if changed
 | Item | Current status | Watch for |
@@ -56,9 +61,9 @@ If you cannot find a source:
 | Engine V1 GCP | Jun 30 deadline, AT RISK | Completion confirmation or slip announcement |
 | Engine V1 Prod | Jul 31 deadline | Dependency on Jun 30 |
 | Core Resilience | Jul 31 target, BLOCKED | Engine team response to Kirill's MySQL analysis |
-| MySQL PoC | 2 paths: MySQL replication (0.5–1% collision) vs. single primary write (zero collision). Engine team input (Hieu, Artem, Thomas) pending | Engine team response, Steven Vo decision |
+| MySQL PoC | 2 paths: MySQL replication (0.5-1% collision) vs. single primary write (zero collision). Engine team input (Hieu, Artem, Thomas) pending | Engine team response, Steven Vo decision |
 | MySQL DR Topology | Blocked — awaiting Engine team then Steven Vo | Decision announcement |
-| CMS/GCI S3→GCS | Scheduled Jun 24 — check if completed | Completion message in #ext-geocomply-zencore |
+| CMS/GCI S3 to GCS | Scheduled Jun 24 — check if completed | Completion message in #ext-geocomply-zencore |
 | GeoGuard Phase 1 | Underway (ZenCore). Phase 2 blocked on Ph1 | Phase 1 completion confirmation |
 | GeoGuard MP/GCP integration | Still in discussions, no alignment | Any alignment announcement |
 | Databricks | Contract in review. MBR Jul 7 3PM ET | Contract decision, MBR outcome |
@@ -70,27 +75,21 @@ If you cannot find a source:
 - Open Decisions count and blurb (currently 2, waiting on Steven Vo)
 - Nearest deadline
 
-## After updating the dashboard
-1. `cp /Users/wajihbizreh/Downloads/gcp-migration-dashboard.html /tmp/gcp-dashboard/index.html`
-2. `cd /tmp/gcp-dashboard && git add index.html`
-3. `git commit -m "update: <date> routine refresh — <one line summary>"`
-4. Push with HTTPS token (see push command above)
-5. Create Slack draft in Wajih's DM (U057V3QCLK0) using `slack_send_message_draft`
-
 ## Draft message template
-```
+Send a Slack draft to U057V3QCLK0 (Wajih's DM) using slack_send_message_draft:
+
 Hi team — GCP Migration Dashboard updated for <date>.
 
-<status_emoji> **Overall: <status>** · Nearest deadline: <deadline> · <N> days
+<status_emoji> Overall: <status> · Nearest deadline: <deadline> · <N> days
 
-**Key updates:**
+Key updates:
 - [only items that materially changed since last draft]
 
-:point_right: Dashboard: https://wajihgc.github.io/gcp-migration-dashboard/
+Dashboard: https://wajihgc.github.io/gcp-migration-dashboard/
 
 FYI @Steven Vo @Nataliia Kyrychenko
-```
-Only list items in Key Updates that actually changed. If nothing changed in a workstream, do not mention it.
+
+Only list items that actually changed. If nothing changed in a workstream, do not mention it.
 
 ## Session report to Wajih (always end with this)
 After dropping the draft, report:
@@ -99,9 +98,9 @@ After dropping the draft, report:
 3. Anything that needs Wajih's input before sending
 
 ## How to handle feedback from Wajih in this session
-1. Apply the correction to the dashboard and push
-2. Update the draft in Wajih's DM
-3. Propose the exact addition to the Corrections Log below (do not auto-write — wait for Wajih to confirm)
+1. Apply the correction to the dashboard and push to GitHub
+2. Update the Slack draft
+3. Propose the exact addition to the Corrections Log below — do not write it without Wajih confirming
 
 ## Corrections log
 - [2026-06-22] Never say "Hieu and Rost have options prepared" without checking Kirill's latest research — his analysis supersedes the older DR options framing
