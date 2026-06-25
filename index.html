@@ -267,13 +267,13 @@
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
 
     <div class="p-4 flex items-start gap-3">
-      <span class="sb sb-in-progress mt-0.5 flex-shrink-0" style="min-width:88px;justify-content:center;">In Progress</span>
+      <span class="sb sb-blocked mt-0.5 flex-shrink-0" style="min-width:88px;justify-content:center;">Blocked</span>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="font-semibold text-sm text-gray-900">MongoDB $500K AWS Credit</span>
           <span class="sb sb-at-risk">Hard Deadline Aug 31</span>
         </div>
-        <p class="text-sm text-gray-600 mt-1">Andrii is submitting the $500K AWS outcome-based credit application. Aug 31 hard deadline remains active — no extension possible.</p>
+        <p class="text-sm text-gray-600 mt-1">Submission blocked — Andrii is waiting for Rost to confirm the project outcome. Outcome is being debated between Rost and Engineering. Finance team cannot submit until resolved. Aug 31 hard deadline remains active — no extension possible.</p>
       </div>
     </div>
 
@@ -375,7 +375,7 @@
         <tr class="hover:bg-gray-50">
           <td class="px-5 py-3 font-semibold text-gray-800"><a href="#geoguard-cms" class="text-gblue hover:underline">CMS / GCI</a></td>
           <td class="px-5 py-3"><span class="sb sb-in-progress">In Progress</span></td>
-          <td class="px-5 py-3 text-gray-600">Valkey Jun 22 · S3→GCS next week</td>
+          <td class="px-5 py-3 text-gray-600">Valkey Jun 22 ✓ · S3→GCS Jun 24 ✓</td>
           <td class="px-5 py-3 text-gray-500">Zencore / CMS team</td>
           <td class="px-5 py-3 source-tag">↗ CPR Jun 2, 2026</td>
         </tr>
@@ -1193,7 +1193,7 @@
           <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Blocked</span> Phase 2 — awaiting Ph1 completion</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600"><strong>Phase 1 is underway.</strong> Zencore is refactoring cron jobs to Cloud Run, working on MySQL connectivity and regional API staging deployment. Phase 2 is blocked until Phase 1 is done. MP/GCP integration is still in discussions, no alignment yet. Cloud Armor kickoff was Jun 17.</p>
+        <p class="text-gray-600"><strong>Phase 1 is underway.</strong> Cron refactor to Cloud Run Jobs progressing. Database download conflicts persist (GCS fuse driver limitations) — max packet config being resolved via Terraform. Phase 2 Security workstream review being scheduled this week. Phase 2 blocked on Ph1 completion. MP/GCP integration still in discussions.</p>
         <p class="source-tag">↗ #ext-geocomply-zencore · CPR Jun 2, 2026</p>
       </div>
     </div>
@@ -1206,11 +1206,11 @@
       <div class="space-y-3 text-sm">
         <ul class="space-y-2 text-gray-600">
           <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> MongoDB Staging (GCP) — Jun 3</li>
-          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">Today</span> Valkey (Redis) cutover — Jun 22</li>
-          <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Next</span> S3→GCS cutover — proposed early next week</li>
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> Valkey (Redis) cutover — Jun 22</li>
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> S3→GCS cutover — Jun 24</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">MongoDB Staging done Jun 3. <strong>Valkey cutover today (Jun 22)</strong>, using RIOT for live replication after ElastiCache snapshot failed. <strong>S3→GCS proposed early next week.</strong> Webtools and RMS prod cutover also in coordination.</p>
+        <p class="text-gray-600">MongoDB Staging done Jun 3. Valkey cutover complete Jun 22. <strong>S3→GCS cutover complete Jun 24</strong> — traffic shifted to GCS successfully, STS job decommissioning Jun 25. Webtools and RMS prod cutover in coordination.</p>
         <p class="source-tag">↗ #ext-geocomply-zencore · Jun 22, 2026</p>
       </div>
     </div>
