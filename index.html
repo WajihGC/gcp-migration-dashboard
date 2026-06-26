@@ -151,7 +151,7 @@
       <span class="sb sb-at-risk">Overall: At Risk</span>
     </div>
     <div class="text-right text-xs text-gray-400">
-      <p class="font-medium text-gray-200">Last updated: Jun 18, 2026 · ET</p>
+      <p class="font-medium text-gray-200">Last updated: Jun 26, 2026 · ET</p>
       <p>Run by Claude Code Routine · Sources: Jira, Sheets, Calendar, Drive, Gmail</p>
     </div>
   </div>
@@ -207,8 +207,8 @@
         <span class="sb sb-at-risk">At Risk</span>
       </div>
       <p class="text-2xl font-bold text-gray-900 mt-1">Jun 30</p>
-      <p class="text-sm font-semibold text-gamber mt-0.5">8 days remaining</p>
-      <p class="text-xs text-gray-500 mt-2 leading-snug">Milestone at risk. Core Resilience is blocked on GeoComply decisions.</p>
+      <p class="text-sm font-semibold text-gamber mt-0.5">4 days remaining</p>
+      <p class="text-xs text-gray-500 mt-2 leading-snug">Milestone at risk. EAGMIG-108 done Jun 22. EAGMIG-139/140 started. 5 PRs open. GKE connectivity unconfirmed.</p>
       <p class="source-tag mt-3">↗ GCP Project Timeline</p>
     </a>
 
@@ -382,14 +382,14 @@
         <tr class="hover:bg-gray-50">
           <td class="px-5 py-3 font-semibold text-gray-800"><a href="#resilience-security" class="text-gblue hover:underline">Core Resilience</a></td>
           <td class="px-5 py-3"><span class="sb sb-blocked">Blocked</span></td>
-          <td class="px-5 py-3 text-gray-600">Jul 31 (blocked on MySQL research)</td>
+          <td class="px-5 py-3 text-gray-600">Jul 31 (ADR blocked on Steven Vo MySQL decision)</td>
           <td class="px-5 py-3 text-gray-500">Engineering</td>
           <td class="px-5 py-3 source-tag">↗ GCP Project Timeline</td>
         </tr>
         <tr class="hover:bg-gray-50">
           <td class="px-5 py-3 font-semibold text-gray-800"><a href="#resilience-security" class="text-gblue hover:underline">Security / NGFW</a></td>
           <td class="px-5 py-3"><span class="sb sb-in-progress">In Progress</span></td>
-          <td class="px-5 py-3 text-gray-600">SOW 3 scoping (~$100–110K)</td>
+          <td class="px-5 py-3 text-gray-600">Egress architecture decided Jun 25 · Terraform to dev next</td>
           <td class="px-5 py-3 text-gray-500">Zencore / Andrii</td>
           <td class="px-5 py-3 source-tag">↗ Cloud Infra Budget 2026</td>
         </tr>
@@ -1067,8 +1067,8 @@
           <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Not Started</span> Full migration — H2 2027</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">Engine V1 GCP (<strong>Jun 30</strong>) is at risk. A slip cascades to Engine V1 Prod (<strong>Jul 31</strong>). <strong>Core Resilience is blocked on our side</strong>, waiting on Kirill's MySQL research update.</p>
-        <p class="source-tag">↗ GCP Project Timeline · CPR Jun 2, 2026</p>
+        <p class="text-gray-600">Engine V1 GCP (<strong>Jun 30</strong>) is at risk — <strong>4 days remaining</strong>. EAGMIG-108 HARD GATE done Jun 22. EAGMIG-139 (integration tests) + EAGMIG-140 (Odin API forwarding) started. 5 PRs still open. MySQL/MongoDB GKE connectivity unconfirmed. A slip cascades to Engine V1 Prod (<strong>Jul 31</strong>).</p>
+        <p class="source-tag">↗ #engine-cicd-containerization · Jun 25, 2026</p>
       </div>
     </div>
 
@@ -1080,12 +1080,13 @@
       <div class="space-y-3 text-sm">
         <p class="font-medium text-gray-700">Open Decisions — Steven Vo</p>
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-start gap-2"><span class="sb sb-in-progress flex-shrink-0" style="font-size:9px;">In Progress</span> Kirill's analysis complete — 2 paths identified, Engine team input pending</li>
-          <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> DR topology — awaiting path selection</li>
+          <li class="flex items-start gap-2"><span class="sb sb-in-progress flex-shrink-0" style="font-size:9px;">In Progress</span> XPath rule audit complete Jun 24 — 3 rules, 14 envs</li>
+          <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> Engine team input pending (Hieu, Artem, Thomas)</li>
+          <li class="flex items-start gap-2"><span class="sb sb-blocked flex-shrink-0" style="font-size:9px;">Blocked</span> DR topology — awaiting path selection + Steven Vo</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">Cron-every-30s approach ruled out after Kibana analysis. Two paths remain: <strong>MySQL replication</strong> (0.5–1% collision risk) or <strong>single primary write</strong> (zero collision). Engine team input needed before path is selected. <strong>Core Resilience is on hold until the decision lands.</strong></p>
-        <p class="source-tag">↗ MySQL Consolidation Workbook · CPR Jun 2, 2026</p>
+        <p class="text-gray-600">Cron-every-30s approach ruled out. Two paths remain: <strong>MySQL replication</strong> (0.5–1% collision risk) or <strong>single primary write</strong> (zero collision). Kirill's XPath rule audit complete Jun 24: 3 rules exposed — WiFi_DB_error (14 envs, ~238 operators, priority), altitude_validation (2 envs, ~55 ops), GC_Redeem_No_Previous_Check (1 op, negligible). Engine team input from Hieu, Artem, Thomas still pending. <strong>Wajih asked Kirill for collision analysis Jun 26 — no response yet.</strong></p>
+        <p class="source-tag">↗ #stack-2-and-gcp-planning · #engine-costs-2026 · Jun 24–26, 2026</p>
       </div>
     </div>
 
@@ -1107,11 +1108,12 @@
       <div class="space-y-3 text-sm">
         <ul class="space-y-2 text-gray-600">
           <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Blocked</span> Target <strong>Jul 31</strong></li>
-          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Waiting</span> MySQL research update from Kirill</li>
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> C4A instances selected · MySQL replication chosen · ProxySQL</li>
+          <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Blocked</span> ADR blocked — awaiting Steven Vo MySQL path decision</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600"><strong>Blocked on our side.</strong> Waiting on Engine team input on Kirill's MySQL path analysis before architecture decisions can be made. Jul 31 target stands.</p>
-        <p class="source-tag">↗ GCP Project Timeline · CPR Jun 2, 2026</p>
+        <p class="text-gray-600">ZenCore sync Jun 23: <strong>C4A instances selected</strong>, native MySQL replication chosen as sync transport, ProxySQL for routing. Tabletop exercises being designed for split-brain/interconnect failure modes. <strong>ADR blocked</strong> until Steven Vo decides MySQL path. Jul 31 target at risk if MySQL path stays open.</p>
+        <p class="source-tag">↗ #stack-2-and-gcp-planning · Jun 23, 2026</p>
       </div>
     </div>
 
@@ -1122,12 +1124,13 @@
       </div>
       <div class="space-y-3 text-sm">
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> NGFW evaluation ongoing</li>
-          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> Security workstream kickoff — Jun 17</li>
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> Egress filtering architecture decided — Jun 25</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Review</span> NGFW doc — sent to Kostiantyn Nor Jun 25</li>
+          <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Next</span> Terraform deployment to dev</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600"><strong>Security kickoff done Jun 17.</strong> NGFW evaluation ongoing, no tech selection yet. SOW 3 in scoping, no blockers.</p>
-        <p class="source-tag">↗ Cloud Infra Budget 2026</p>
+        <p class="text-gray-600"><strong>Egress filtering architecture decided Jun 25.</strong> YAML allow lists by protocol/FQDN. Deployment in <strong>logging-only mode first</strong>, then enforcement. VPC destination ranges restricted to necessary ranges. All security logs in Google Cloud Operations. NGFW doc sent to Kostiantyn Nor for final review. Next: Terraform module to dev.</p>
+        <p class="source-tag">↗ #ext-geocomply-zencore · Jun 25, 2026</p>
       </div>
     </div>
 
@@ -1163,12 +1166,12 @@
       </div>
       <div class="space-y-3 text-sm">
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Review</span> Contract received Jun 22 — under review</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> Billing alignment pending — Andrii away, Graeme Tingey to confirm</li>
           <li class="flex items-center gap-2"><span class="sb sb-not-started" style="font-size:9px;">Upcoming</span> Business Review — <strong>Jul 7, 3PM ET</strong></li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">Contract received Jun 22, under review. Negotiations focus on <strong>moving $108K from AWS commitments to GCP</strong>. <strong>MBR on Jul 7 at 3PM ET.</strong></p>
-        <p class="source-tag">↗ Cloud Infra Budget 2026 · Google Calendar</p>
+        <p class="text-gray-600">Contract reviewed Jun 23. <strong>$75K success credits expired Nov 2025</strong>; <strong>$125K AWS credits consumed</strong>. Billing schedule alignment pending — Andrii away, Graeme Tingey to confirm. <strong>MBR on Jul 7 at 3PM ET</strong> unchanged.</p>
+        <p class="source-tag">↗ #ext-geocomply-zencore · Jun 23, 2026</p>
       </div>
     </div>
 
@@ -1189,12 +1192,16 @@
       </div>
       <div class="space-y-3 text-sm">
         <ul class="space-y-2 text-gray-600">
-          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> Phase 1 — underway</li>
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> Cron jobs → Cloud Run complete — Jun 25</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> DNS zone creation (geoguard.com) — awaiting record export from Dmitryi</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">In Progress</span> Webtools PR #7 · Backoffice PR #765 — deployment docs submitted</li>
+          <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> Updates API rolled back — HTTP2/binary file response retained</li>
+          <li class="flex items-center gap-2"><span class="sb sb-in-progress" style="font-size:9px;">Investigating</span> Dev env 500 errors — IP whitelisting or config</li>
           <li class="flex items-center gap-2"><span class="sb sb-blocked" style="font-size:9px;">Blocked</span> Phase 2 — awaiting Ph1 completion</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600"><strong>Phase 1 is underway.</strong> Cron refactor to Cloud Run Jobs progressing. Database download conflicts persist (GCS fuse driver limitations) — max packet config being resolved via Terraform. Phase 2 Security workstream review being scheduled this week. Phase 2 blocked on Ph1 completion. MP/GCP integration still in discussions.</p>
-        <p class="source-tag">↗ #ext-geocomply-zencore · CPR Jun 2, 2026</p>
+        <p class="text-gray-600"><strong>Cron jobs to Cloud Run complete Jun 25.</strong> Deployment docs PRs submitted (webtools #7, backoffice #765). Updates API code rolled back to retain HTTP2/binary response. geoguard.com DNS zone creation underway in GCP Prod — awaiting record export from Dmitryi. Dev env 500 errors under investigation (IP whitelisting or config). GCP RMS unable to connect to AWS APIs (HTTP 400/500) — DevOps being engaged Jun 26. Phase 2 blocked on Ph1. MP/GCP integration still in discussions.</p>
+        <p class="source-tag">↗ #ext-geocomply-zencore · Jun 25–26, 2026</p>
       </div>
     </div>
 
@@ -1210,8 +1217,8 @@
           <li class="flex items-center gap-2"><span class="sb sb-done" style="font-size:9px;">Done</span> S3→GCS cutover — Jun 24</li>
         </ul>
         <div class="divider"></div>
-        <p class="text-gray-600">MongoDB Staging done Jun 3. Valkey cutover complete Jun 22. <strong>S3→GCS cutover complete Jun 24</strong> — traffic shifted to GCS successfully, STS job decommissioning Jun 25. Webtools and RMS prod cutover in coordination.</p>
-        <p class="source-tag">↗ #ext-geocomply-zencore · Jun 22, 2026</p>
+        <p class="text-gray-600">MongoDB Staging done Jun 3. Valkey cutover complete Jun 22. <strong>S3→GCS cutover fully complete</strong> — S3 sync job stopped and disabled Jun 25. STS decommissioned. Webtools and RMS prod cutover in coordination.</p>
+        <p class="source-tag">↗ #ext-geocomply-zencore · Jun 25, 2026</p>
       </div>
     </div>
 
